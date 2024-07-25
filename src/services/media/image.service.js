@@ -8,13 +8,11 @@ const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 // const cv = require('opencv4nodejs');
-const { NotFoundError, InternalServerError } = require('../../errors/application-errors');
+const { NotFoundError, InternalServerError, UnauthorizedError } = require('../../errors/application-errors');
 const { getFirebaseStorage } = require('../../database/firebase/init');
 const Image = require('../../database/models/image.model');
 const logger = require('../../loggers/logger');
-const { ref, uploadBytesResumable, getDownloadURL } = require('firebase/storage');
-const { where } = require('sequelize');
-
+const { ref, uploadBytesResumable, getDownloadURL, deleteObject } = require('firebase/storage');
 class ImageService{
 //################################################################## STORE IMAGE IN MEMORY ######################################################################//
   // Multer configuration for file storage
@@ -43,29 +41,30 @@ class ImageService{
       const fileRef = ref(firebaseStorage, `${directory}${fileName}`);
       const snapshot = await uploadBytesResumable(fileRef, file.buffer);
       const downloadURL = await getDownloadURL(snapshot.ref);
+      const path = snapshot.metadata.fullPath;
       
       logger.info(`filename: ${fileName}`)
       logger.info(`path: ${snapshot.metadata.fullPath}`)
       logger.info(`Successfully uploaded image: ${fileName}`);
       logger.info(`url: ${downloadURL}`)
-      return downloadURL;
+      return { downloadURL, path };
     } catch (error) {
       logger.error(`Unable to upload Image to Firebase: ${error.message}`);
       throw new InternalServerError(`Unable to upload Image to Firebase, ${error.message}`);
     }
   };
 //################################################################## SAVE IMAGE TO DATABASE ######################################################################//
-  static UploadImageToDB = async (req, file, downloadURL) => {
+  static UploadImageToDB = async (req, file, downloadURL, path) => {
     try {
       const newImage = await Image.create({
         filename: file.originalname,
-        path: file.path,
+        path: path,
         originalName: file.originalname,
         ownerId: req.user.id, // Assume this comes from the request body
         description: 'description', // Assume this comes from the request body
         url: downloadURL,
       });
-      logger.info(`Successfully saved imag: ${file.originalname}`);
+      logger.info(`Successfully saved image: ${file.originalname}`);
       return newImage;
     } catch (error) {
       logger.error(`Unable to Save Image to Database: ${error.message}`);
@@ -77,7 +76,8 @@ class ImageService{
     try {
       const images = await Image.findAll();
       if (!images || images.length === 0) {
-        throw new NotFoundError('No images found');
+        logger.info(`images not found`);
+        return []
       }
       logger.info(`Successfully retrieved all ${images.length} images`);
       return images;
@@ -91,15 +91,68 @@ class ImageService{
     try {
       const images = await Image.findAll({ where: {ownerId: user.id} });
       if (!images || images.length === 0) {
-        logger.info(`images: ${images}`);
+        logger.warn(`images not found`);
         return []
-        // throw new NotFoundError(`No images found for ${username}`);
       }
       logger.info(`Successfully retrieved ${images.length} images for ${user.username} ${user.id} ${user.email}`);
       return images;
     } catch (e) {
       logger.error(`Error retrieving images: ${e}`);
       throw new InternalServerError(`Unable to retrieve ${user.username}'s images`);
+    }
+  };
+//########################################################################## UPDATE IMAGE ##############################################################//
+  static async updateImageDetails(imageId, userId, newFilename, newDescription) {
+    try {
+      const image = await Image.findByPk(imageId);
+      if (!image) {
+        logger.error(`Image with id ${imageId} not found`);
+        throw new NotFoundError(`Action Denied, Image not found`);
+      }
+
+      if(image.ownerId != userId){
+        logger.error('Unauthorized Update Request');
+        throw new UnauthorizedError(`Action Denied, Owner Rights Restriction`);
+      }
+
+      image.filename = newFilename || image.filename;
+      image.description = newDescription || image.description;
+
+      await image.save();
+
+      logger.info(`Successfully updated image ${imageId}`);
+      return image;
+    } catch (e) {
+      logger.error(`Error updating image: ${e}`);
+      throw new InternalServerError(`Unable to update image ${imageId}`);
+    }
+  }
+//########################################################################## Delete IMAGE ##############################################################//
+  static deleteImage = async (imageId, userId) => {
+    try {
+      const image = await Image.findByPk(imageId);
+
+      if (!image) {
+        logger.error(`Image with id ${imageId} not found`);
+        throw new NotFoundError(`Action Denied, Image not found`);
+      }
+
+      if(image.ownerId != userId){
+        logger.error('Unauthorized Delete Request');
+        throw new UnauthorizedError(`Action Denied, Owner Rights Restriction`);
+      }
+
+      const firebaseStorage = getFirebaseStorage();
+      const fileRef = ref(firebaseStorage, image.url);
+
+      await deleteObject(fileRef);
+      await Image.destroy({ where: { id: imageId } });
+
+      logger.info(`Successfully deleted image: ${image.filename} from storage and database`);
+      return { message: `Image ${image.filename} deleted successfully` };
+    } catch (error) {
+      logger.error(`Unable to delete Image: ${error.message}`);
+      throw new InternalServerError(`Unable to delete Image, ${error.message}`);
     }
   };
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ Fetch the stored image URLs from your database $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$

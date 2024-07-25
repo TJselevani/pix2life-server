@@ -7,8 +7,8 @@ const audioService = require("../services/media/audio.service");
 const uploadAudio = asyncHandler(async (req, res,) => {
     const audio = req;
     const file = await audioService.saveAudioToMemory(audio);
-    const downloadURL = await audioService.UploadAudioToFirestoreDB(file);
-    const newAudio = await audioService.UploadAudioToDB(req, file, downloadURL);
+    const { downloadURL, path }  = await audioService.UploadAudioToFirestoreDB(file);
+    const newAudio = await audioService.UploadAudioToDB(req, file, downloadURL, path);
 
     if (newAudio) {
         // await saveAudioMetaDataDB(file);
@@ -30,4 +30,31 @@ const getUserAudioFiles = asyncHandler(async (req, res, next) => {
     res.json(audios);
 });
 
-module.exports = { uploadAudio, getAllAudioFiles, getUserAudioFiles, }
+const updateAudio = asyncHandler(async (req, res, next) => {
+    const reqId = req.user.id;
+    const { audioId, userId } = req.params;
+    const newFilename = req.body.filename
+    const newDescription = req.body.description
+
+    if (reqId != userId){
+        throw new UnauthorizedError('Action Denied')
+    }
+  
+    const updatedAudio = await audioService.updateAudioDetails(audioId, userId, newFilename, newDescription);
+    res.status(201).json({ message: 'Audio updated successfully', updatedAudio: updatedAudio });
+    
+}); 
+
+const deleteAudio = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const { audioId } = req.params;
+
+    if(audioId == undefined || audioId == null){
+        throw new NotFoundError('Resource ID missing')
+    }
+
+    const response = await audioService.deleteAudio(audioId, userId);
+    res.json(response);
+});    
+
+module.exports = { uploadAudio, getAllAudioFiles, getUserAudioFiles, updateAudio, deleteAudio }

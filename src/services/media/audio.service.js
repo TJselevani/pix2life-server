@@ -3,16 +3,12 @@ const result = dotenv.config();
 if (result.error) {
   dotenv.config({ path: '.env.default' });
 }
-const axios = require('axios');
-const fs = require('fs');
 const multer = require('multer');
-const path = require('path');
-const { NotFoundError, InternalServerError } = require('../../errors/application-errors');
+const { NotFoundError, InternalServerError, UnauthorizedError } = require('../../errors/application-errors');
 const { getFirebaseStorage } = require('../../database/firebase/init');
 const Audio = require('../../database/models/audio.model');
 const logger = require('../../loggers/logger');
-const { ref, uploadBytesResumable, getDownloadURL } = require('firebase/storage');
-
+const { ref, uploadBytesResumable, getDownloadURL, deleteObject } = require('firebase/storage');
 class audioService{
 //################################################################## STORE audio IN MEMORY ######################################################################//
   // Multer configuration for file storage
@@ -41,23 +37,24 @@ class audioService{
       const fileRef = ref(firebaseStorage, `${directory}${fileName}`);
       const snapshot = await uploadBytesResumable(fileRef, file.buffer);
       const downloadURL = await getDownloadURL(snapshot.ref);
+      const path = snapshot.metadata.fullPath;
       
       logger.info(`filename: ${fileName}`)
       logger.info(`path: ${snapshot.metadata.fullPath}`)
       logger.info(`Successfully uploaded audio: ${fileName}`);
       logger.info(`url: ${downloadURL}`)
-      return downloadURL;
+      return { downloadURL, path } ;
     } catch (error) {
       logger.error(`Unable to upload audio to Firebase: ${error.message}`);
       throw new InternalServerError(`Unable to upload audio to Firebase, ${error.message}`);
     }
   };
 //################################################################## SAVE AUDIO TO DATABASE ######################################################################//
-  static UploadAudioToDB = async (req, file, downloadURL) => {
+  static UploadAudioToDB = async (req, file, downloadURL, path) => {
     try {
       const newAudio = await Audio.create({
         filename: file.originalname,
-        path: file.path,
+        path: path,
         originalName: file.originalname,
         ownerId: req.user.id, // Assume this comes from the request body
         description: 'description', // Assume this comes from the request body
@@ -75,7 +72,8 @@ class audioService{
     try {
       const audios = await Audio.findAll();
       if (!audios || audios.length === 0) {
-        throw new NotFoundError('No audios found');
+        logger.warn(`audios not found`);
+        return []
       }
       logger.info(`Successfully retrieved all ${audios.length} audios`);
       return audios;
@@ -89,7 +87,7 @@ class audioService{
     try {
       const audios = await Audio.findAll({ where: {ownerId: user.id} });
       if (!audios || audios.length === 0) {
-        logger.info(`audios: ${audios}`);
+        logger.warn(`audios not found`);
         return []
         // throw new NotFoundError(`No audios found for ${username}`);
       }
@@ -98,6 +96,60 @@ class audioService{
     } catch (e) {
       logger.error(`Error retrieving audios: ${e}`);
       throw new InternalServerError(`Unable to retrieve ${user.username}'s audios`);
+    }
+  };
+//########################################################################## UPDATE AUDIO ##############################################################//
+  static async updateAudioDetails(audioId, userId, newFilename, newDescription) {
+    try {
+      const audio = await Audio.findByPk(audioId);
+      if (!audio) {
+        logger.info(`Audio with id ${audioId} not found`);
+        throw new NotFoundError(`Action Denied, audio not found`);
+      }
+
+      if(audio.ownerId != userId){
+        logger.error('Unauthorized Update Request');
+        throw new UnauthorizedError(`Action Denied, Owner Rights Restriction`);
+      }
+
+      audio.filename = newFilename || audio.filename;
+      audio.description = newDescription || audio.description;
+
+      await audio.save();
+
+      logger.info(`Successfully updated audio ${audioId}`);
+      return audio;
+    } catch (e) {
+      logger.error(`Error updating audio: ${e}`);
+      throw new InternalServerError(`Unable to update audio ${audioId}`);
+    }
+  }
+//########################################################################## Delete Audio ##############################################################//
+  static deleteAudio = async (audioId, userId) => {
+    try {
+      const audio = await Audio.findByPk(audioId);
+
+      if (!audio) {
+        logger.error(`Audio with id ${audioId} not found`);
+        throw new NotFoundError(`Action Denied, Audio not found`);
+      }
+
+      if(audio.ownerId != userId){
+        logger.error('Unauthorized Delete Request');
+        throw new UnauthorizedError(`Action Denied, Owner Rights Restriction`);
+      }
+
+      const firebaseStorage = getFirebaseStorage();
+      const fileRef = ref(firebaseStorage, audio.path);
+
+      await deleteObject(fileRef);
+      await Audio.destroy({ where: { id: audioId } });
+
+      logger.info(`Successfully deleted Audio: ${audio.filename} from storage and database`);
+      return { message: 'Audio deleted successfully' };
+    } catch (error) {
+      logger.error(`Unable to delete Audio: ${error.message}`);
+      throw new InternalServerError(`Unable to delete Audio, ${error.message}`);
     }
   };
 }

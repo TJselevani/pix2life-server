@@ -4,13 +4,11 @@ if (result.error) {
   dotenv.config({ path: '.env.default' });
 }
 const multer = require('multer');
-const path = require('path');
 const { NotFoundError, InternalServerError } = require('../../errors/application-errors');
 const { getFirebaseStorage } = require('../../database/firebase/init');
 const Video = require('../../database/models/video.model');
 const logger = require('../../loggers/logger');
-const { ref, uploadBytesResumable, getDownloadURL } = require('firebase/storage');
-
+const { ref, uploadBytesResumable, getDownloadURL, deleteObject } = require('firebase/storage');
 class VideoService{
 //################################################################## STORE VIDEO IN MEMORY ######################################################################//
   // Multer configuration for file storage
@@ -39,23 +37,24 @@ class VideoService{
       const fileRef = ref(firebaseStorage, `${directory}${fileName}`);
       const snapshot = await uploadBytesResumable(fileRef, file.buffer);
       const downloadURL = await getDownloadURL(snapshot.ref);
+      const path = snapshot.metadata.fullPath;
       
       logger.info(`filename: ${fileName}`)
       logger.info(`path: ${snapshot.metadata.fullPath}`)
       logger.info(`Successfully uploaded video: ${fileName}`);
       logger.info(`url: ${downloadURL}`)
-      return downloadURL;
+      return { downloadURL, path};
     } catch (error) {
       logger.error(`Unable to upload video to Firebase: ${error.message}`);
       throw new InternalServerError(`Unable to upload video to Firebase, ${error.message}`);
     }
   };
 //################################################################## SAVE VIDEO TO DATABASE ######################################################################//
-  static UploadVideoToDB = async (req, file, downloadURL) => {
+  static UploadVideoToDB = async (req, file, downloadURL, path) => {
     try {
       const newVideo = await Video.create({
         filename: file.originalname,
-        path: file.path,
+        path: path,
         originalName: file.originalname,
         ownerId: req.user.id, // Assume this comes from the request body
         description: 'description', // Assume this comes from the request body
@@ -73,7 +72,8 @@ class VideoService{
     try {
       const videos = await Video.findAll();
       if (!videos || videos.length === 0) {
-        throw new NotFoundError('No videos found');
+        logger.warn(`audios not found`);
+        return []
       }
       logger.info(`Successfully retrieved all ${videos.length} videos`);
       return videos;
@@ -87,15 +87,68 @@ class VideoService{
     try {
       const videos = await Video.findAll({ where: {ownerId: user.id} });
       if (!videos || videos.length === 0) {
-        logger.info(`videos: ${videos}`);
+        logger.warn(`videos not found`);
         return []
-        // throw new NotFoundError(`No videos found for ${username}`);
       }
       logger.info(`Successfully retrieved ${videos.length} videos for ${user.username} ${user.id} ${user.email}`);
       return videos;
     } catch (e) {
       logger.error(`Error retrieving videos: ${e}`);
       throw new InternalServerError(`Unable to retrieve ${user.username}'s videos`);
+    }
+  };
+//########################################################################## UPDATE VIDEO ##############################################################//
+  static async updateVideoDetails(videoId, userId, newFilename, newDescription) {
+    try {
+      const video = await Video.findByPk(videoId);
+      if (!video) {
+        logger.info(`video with id ${videoId} not found`);
+        throw new NotFoundError(`Action Denied, video not found`);
+      }
+
+      if(video.ownerId != userId){
+        logger.error('Unauthorized Delete Request');
+        throw new UnauthorizedError(`Action Denied, Owner Rights Restriction`);
+      }
+
+      video.filename = newFilename || video.filename;
+      video.description = newDescription || video.description;
+
+      await video.save();
+
+      logger.info(`Successfully updated video ${videoId}`);
+      return video;
+    } catch (e) {
+      logger.error(`Error updating video: ${e}`);
+      throw new InternalServerError(`Unable to update video ${videoId}`);
+    }
+  }
+//########################################################################## Delete Video ##############################################################//
+  static deleteVideo = async (videoId, userId) => {
+    try {
+      const video = await Video.findByPk(videoId);
+
+      if (!video) {
+        logger.error(`Video with id ${videoId} not found`);
+        throw new NotFoundError(`Action Denied, Video not found`);
+      }
+
+      if(video.ownerId != userId){
+        logger.error('Unauthorized Delete Request');
+        throw new UnauthorizedError(`Action Denied, Owner Rights Restriction`);
+      }
+
+      const firebaseStorage = getFirebaseStorage();
+      const fileRef = ref(firebaseStorage, video.path);
+
+      await deleteObject(fileRef);
+      await Video.destroy({ where: { id: videoId } });
+
+      logger.info(`Successfully deleted Video: ${video.filename} from storage and database`);
+      return { message: 'Video deleted successfully' };
+    } catch (error) {
+      logger.error(`Unable to delete Video: ${error.message}`);
+      throw new InternalServerError(`Unable to delete Video, ${error.message}`);
     }
   };
 }
