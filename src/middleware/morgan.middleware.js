@@ -9,7 +9,7 @@ const stream = {
 // Define a morgan logging format
 const morganMiddleware = morgan(
   // ':method :url :status :res[content-length] - :response-time ms',
-  '[STATUS] :status [LENGTH] :res[content-length] - [EAT] :response-time ms',
+  '[STATUS] :status [CONTENT] :res[content-length] - [EAT] :response-time ms',
   { stream }
 );
 

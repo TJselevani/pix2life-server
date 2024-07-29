@@ -1,7 +1,7 @@
 {
   "name": "pix2life-server",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "2.0.0",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/server.js",
@@ -12,7 +12,10 @@
   "description": "",
   "devDependencies": {
     "chalk": "^5.3.0",
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "morgan": "^1.10.0",
+    "winston": "^3.13.0",
+    "winston-transport": "^4.7.0"
   },
   "dependencies": {
     "axios": "^1.7.2",
@@ -28,9 +31,6 @@
     "firebase-admin": "^12.2.0",
     "gridfs-stream": "^1.1.1",
     "jsonwebtoken": "^9.0.2",
-    "mariadb": "^3.3.1",
-    "mongoose": "^8.4.4",
-    "morgan": "^1.10.0",
     "multer": "^1.4.4",
     "multer-gridfs-storage": "^5.0.2",
     "mysql2": "^3.10.2",
@@ -40,8 +40,6 @@
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.2",
     "stripe": "^16.2.0",
-    "uuid": "^10.0.0",
-    "winston": "^3.13.0",
-    "winston-transport": "^4.7.0"
+    "uuid": "^10.0.0"
   }
 }
