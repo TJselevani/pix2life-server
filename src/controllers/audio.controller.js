@@ -1,6 +1,6 @@
 const asyncHandler = require('../middleware/async-handler.middleware');
 const logger = require("../loggers/logger");
-const { BadRequestError } = require("../errors/application-errors");
+const { BadRequestError, NotFoundError } = require("../errors/application-errors");
 const audioService = require("../services/media/audio.service");
 
 
@@ -31,15 +31,14 @@ const getUserAudioFiles = asyncHandler(async (req, res, next) => {
 });
 
 const updateAudio = asyncHandler(async (req, res, next) => {
-    const reqId = req.user.id;
-    const { audioId, userId } = req.params;
+    const userId = req.user.id;
+    const { audioId } = req.query;
     const newFilename = req.body.filename
     const newDescription = req.body.description
-
-    if (reqId != userId){
-        throw new UnauthorizedError('Action Denied')
+    
+    if(audioId == undefined || audioId == null){
+        throw new NotFoundError('Resource ID missing')
     }
-  
     const updatedAudio = await audioService.updateAudioDetails(audioId, userId, newFilename, newDescription);
     res.status(201).json({ message: 'Audio updated successfully', updatedAudio: updatedAudio });
     
@@ -47,7 +46,7 @@ const updateAudio = asyncHandler(async (req, res, next) => {
 
 const deleteAudio = asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { audioId } = req.params;
+    const { audioId } = req.query;
 
     if(audioId == undefined || audioId == null){
         throw new NotFoundError('Resource ID missing')

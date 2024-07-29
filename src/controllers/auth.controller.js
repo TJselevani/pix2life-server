@@ -3,13 +3,12 @@ const userService = require('../services/user.service');
 const authService = require('../services/auth.service');
 const { BadRequestError, NotFoundError, UnauthorizedError } = require("../errors/application-errors");
 const asyncHandler = require('../middleware/async-handler.middleware');
-const { log } = require("winston");
 
 const createUser = asyncHandler(async (req, res, next) => {
     const userData = req.body;
     const user = await userService.createUser(userData);
     const token = await authService.createAuthJWTToken(user);
-    logger.info(`User ${user} Created Successfully`);
+    logger.info(`User Created Successfully`);
     return res.json({token: token, user: user, message: `User ${user.username} registered successfully, Verification Code has been sent to Mail`}); 
 })
 
@@ -21,7 +20,7 @@ const createPassword = asyncHandler(async (req, res, next)  => {
     const authUser = await userService.getUserByEmail(req.user.email);
     const hashedPassword = await authService.hashPassword(password);
     const userPassword = await userService.createPassword(authUser, hashedPassword);
-    logger.info(`${userPassword}, password created Successfully`)
+    logger.info(`Password created Successfully`)
     res.json({message: 'Password Created Successfully'});
 })
 

@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../sequelize/init');
-const User = require('./user.model');
 
 const Image = sequelize.define('Image', {
   id: {
@@ -21,6 +20,10 @@ const Image = sequelize.define('Image', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  galleryId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   ownerId: {
     type: DataTypes.UUID,
     allowNull: false,
@@ -34,16 +37,14 @@ const Image = sequelize.define('Image', {
     type: DataTypes.STRING,
     allowNull: false,
   },  
-  // features: {
-  //   type: DataTypes.JSON,
-  //   defaultValue: {},
-  //   allowNull: true,
-  // },
+  features: {
+    type: DataTypes.JSON,
+    defaultValue: {},
+    allowNull: true,
+  },
 }, {
+  // tableName: 'images',
   timestamps: true,
 });
-
-User.hasMany(Image, { foreignKey: 'ownerId', as: 'images', onDelete: 'CASCADE', });
-Image.belongsTo(User, { foreignKey: 'ownerId' });
 
 module.exports = Image;

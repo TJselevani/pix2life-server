@@ -10,12 +10,36 @@ const path = require('path');
 // const cv = require('opencv4nodejs');
 const { NotFoundError, InternalServerError, UnauthorizedError } = require('../../errors/application-errors');
 const { getFirebaseStorage } = require('../../database/firebase/init');
-const Image = require('../../database/models/image.model');
+const { Image } = require('../../database/models/init');
 const logger = require('../../loggers/logger');
 const { ref, uploadBytesResumable, getDownloadURL, deleteObject } = require('firebase/storage');
 class ImageService{
 //################################################################## STORE IMAGE IN MEMORY ######################################################################//
-  // Multer configuration for file storage
+// Multer configuration for disk storage
+  static diskStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+  });  
+
+  static store = multer({ storage: this.diskStorage }).single('image');
+
+  static storeImage = async (req) => {
+    return new Promise((resolve, reject) => {
+        this.upload(req, req.res, (err) => {
+            if (err) {
+                logger.error(`Upload error: ${err}`);
+                return reject(new InternalServerError('Cannot Store file to Disk'));
+            }
+            resolve(req.file);
+        });
+    });
+  };
+
+// Multer configuration for file storage
   static upload = multer({
     storage: multer.memoryStorage(), // Store files in memory
   }).single('image');

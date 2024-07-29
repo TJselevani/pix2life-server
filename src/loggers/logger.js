@@ -22,7 +22,7 @@ const logTransports = [
 
 const logger = createLogger({
   format: format.combine(
-    format.timestamp()
+    format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' })
   ),
   transports: logTransports,
   defaultMeta: { service: 'api' },

@@ -44,8 +44,9 @@ const updateImage = asyncHandler(async (req, res, next) => {
     if(imageId == undefined || imageId == null){
         throw new NotFoundError('Resource ID missing')
     }
+    
     const updatedImage = await imageService.updateImageDetails(imageId, userId, newFilename, newDescription);
-    res.status(201).json({ message: 'Image updated successfully', updatedImage: updatedImage });
+    res.json({ message: 'Image updated successfully', updatedImage: updatedImage });
 }); 
 
 const deleteImage = asyncHandler(async (req, res) => {
@@ -57,7 +58,7 @@ const deleteImage = asyncHandler(async (req, res) => {
     }
     
     const response = await imageService.deleteImage(imageId, userId);
-    res.json(response);
+    res.json({ message: 'Image deleted successfully' });
 });    
 
 module.exports = { uploadImage, getAllImages, getUserImages, matchImage, updateImage, deleteImage }

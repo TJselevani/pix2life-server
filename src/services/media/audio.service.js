@@ -6,7 +6,7 @@ if (result.error) {
 const multer = require('multer');
 const { NotFoundError, InternalServerError, UnauthorizedError } = require('../../errors/application-errors');
 const { getFirebaseStorage } = require('../../database/firebase/init');
-const Audio = require('../../database/models/audio.model');
+const { Audio } = require('../../database/models/init');
 const logger = require('../../loggers/logger');
 const { ref, uploadBytesResumable, getDownloadURL, deleteObject } = require('firebase/storage');
 class audioService{
@@ -140,7 +140,7 @@ class audioService{
       }
 
       const firebaseStorage = getFirebaseStorage();
-      const fileRef = ref(firebaseStorage, audio.path);
+      const fileRef = ref(firebaseStorage, audio.url);
 
       await deleteObject(fileRef);
       await Audio.destroy({ where: { id: audioId } });

@@ -31,13 +31,13 @@ const getUserVideos = asyncHandler(async (req, res, next) => {
 });
 
 const updateVideo = asyncHandler(async (req, res, next) => {
-    const reqId = req.user.id;
-    const { videoId, userId } = req.params;
+    const userId = req.user.id;
+    const { videoId } = req.query;
     const newFilename = req.body.filename
     const newDescription = req.body.description
 
-    if (reqId != userId){
-        throw new UnauthorizedError('Action Denied')
+    if(videoId == undefined || videoId == null){
+        throw new NotFoundError('Resource ID missing')
     }
 
     const updatedVideo = await videoService.updateVideoDetails(videoId, userId, newFilename, newDescription);

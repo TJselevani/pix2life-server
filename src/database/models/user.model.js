@@ -28,7 +28,13 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  avatarUrl: {
+    type: DataTypes.STRING,
+    defaultValue: '',
+    allowNull: true,
+  },
 }, {
+  // tableName: 'Users',
   timestamps: true,
 });
 

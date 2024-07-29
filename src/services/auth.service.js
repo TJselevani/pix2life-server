@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const userService = require('./user.service');
 const { InternalServerError, BadRequestError } = require('../errors/application-errors');
 const logger = require('../loggers/logger');
-const AuthJWTToken = require('../database/models/token.model')
+const { AuthJWTToken } = require('../database/models/init')
 
 class AuthService {
     static validateUSer = async(userEmail, userPassword) => {

@@ -1,6 +1,6 @@
 const { InternalServerError, BadRequestError, NotFoundError } = require("../errors/application-errors");
-const User = require('../database/models/user.model');
-const Password = require('../database/models/password.model');
+const { User } = require('../database/models/init');
+const { Password } = require('../database/models/init');
 const emailService = require('./notification.service');
 const authService = require('./auth.service');
 const logger = require("../loggers/logger");
@@ -124,11 +124,12 @@ class UserService{
             });
         
             if (!user) {
-                logger.info(`User with email ${email} not found.`);
+                logger.warn(`User with email ${email} not found.`);
                 return null;
             }
         
-            logger.info(`User found: ${JSON.stringify(user)}`);
+            //logger.info(`User found: ${JSON.stringify(user)}`);
+            logger.info(`User successfully retrieved`);
             return user;
           } catch (error) {
             throw new InternalServerError(`Failed to retrieve user by email: ${error}`);

@@ -6,7 +6,7 @@ if (result.error) {
 const multer = require('multer');
 const { NotFoundError, InternalServerError } = require('../../errors/application-errors');
 const { getFirebaseStorage } = require('../../database/firebase/init');
-const Video = require('../../database/models/video.model');
+const { Video } = require('../../database/models/init');
 const logger = require('../../loggers/logger');
 const { ref, uploadBytesResumable, getDownloadURL, deleteObject } = require('firebase/storage');
 class VideoService{
@@ -139,7 +139,7 @@ class VideoService{
       }
 
       const firebaseStorage = getFirebaseStorage();
-      const fileRef = ref(firebaseStorage, video.path);
+      const fileRef = ref(firebaseStorage, video.url);
 
       await deleteObject(fileRef);
       await Video.destroy({ where: { id: videoId } });

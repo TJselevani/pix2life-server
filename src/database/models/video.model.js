@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../sequelize/init');
-const User = require('./user.model');
 
 const Video = sequelize.define('Video', {
   id: {
@@ -21,6 +20,10 @@ const Video = sequelize.define('Video', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  galleryId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   ownerId: {
     type: DataTypes.UUID,
     allowNull: false,
@@ -35,10 +38,8 @@ const Video = sequelize.define('Video', {
     allowNull: false,
   },
 }, {
+  // tableName: 'videos',
   timestamps: true,
 });
-
-User.hasMany(Video, { foreignKey: 'ownerId', as: 'Videos', onDelete: 'CASCADE', });
-Video.belongsTo(User, { foreignKey: 'ownerId' });
 
 module.exports = Video;

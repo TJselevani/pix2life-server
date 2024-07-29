@@ -1,8 +1,8 @@
-const { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, updateDoc, getDocs } = require("firebase/firestore");
+const { collection, doc, setDoc, getDoc, deleteDoc, updateDoc, getDocs } = require("firebase/firestore");
 const { getFirestoreDB } = require('../../database/firebase/init');
 const logger = require("../../loggers/logger");
 const { v4: uuidv4 } = require('uuid');
-const User = require('../../database/models/user.model');
+const { User } = require('../../database/models/init');
 
 /**
  * Uploads a new user to the Firestore database.
@@ -131,4 +131,4 @@ const deleteData = async (id) => {
   }
 };
 
-module.exports = { uploadData, getData, getDataByID, updateData, deleteData };
+module.exports = { uploadData, getData, getDataByID, getUserByField, updateData, deleteData };

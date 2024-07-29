@@ -17,9 +17,7 @@ class ConsoleLogTransport extends Transport {
     const label = info.consoleLoggerOptions?.label || info.level.toUpperCase();
     const finalMessage = `[${new Date().toISOString()}] [${label}] ${info.message}`;
     console.log(levelStyleMap[info.level], finalMessage);
-    if (info.stack) {
-      console.log('\t', info.stack);
-    }
+    if (info.stack) { console.log('\t', info.stack);}
     callback();
   }
 }
