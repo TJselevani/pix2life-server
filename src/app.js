@@ -4,6 +4,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const fs = require('fs');
+require('dotenv').config();
+
 
 // Create an Express App
 const app = express();
@@ -39,7 +41,7 @@ app.use('/uploads', express.static('uploads'));
 
 // Logging middleware
 app.use((req, res, next) => {
-  logger.info(`method: ${req.method}, path: ${req.path}`);
+  logger.info(`method: ${req.method}, path: ${req.path}, Query: ${req.query}`);
   next();
 });
 

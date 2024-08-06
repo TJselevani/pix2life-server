@@ -1,4 +1,5 @@
 const dotenv = require('dotenv');
+const ip = require('ip');
 
 const result = dotenv.config();
 if (result.error) {
@@ -18,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 
 //start Server running on port
 const serve = () => app.listen(PORT, () => {
-  logger.info(`🌏 Express server started at http://localhost:${PORT}`);
+  logger.info(`🌏 Express server started at ${ip.address()}:${PORT}`);
 });
 serve();
 

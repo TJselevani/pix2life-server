@@ -194,6 +194,27 @@ class UserService{
             throw new InternalServerError(`Failed to update data: ${error}`);
           }
     }
+
+
+    static async updateUserAvatar(userId, newAvatarUrl){
+        try {
+            const user = await this.getUserById(userId);
+            if (!user) {
+              logger.error(`User with id ${userId} not found`);
+              throw new NotFoundError(`Action Denied, User not found`);
+            }
+        
+            user.avatarUrl = newAvatarUrl || user.avatarUrl;
+        
+            await user.save();
+        
+            logger.info(`Successfully updated avatar URL for user ${userId}`);
+            return user.avatarUrl;
+          } catch (e) {
+            logger.error(`Error updating avatar URL: ${e}`);
+            throw new InternalServerError(`Unable to update avatar URL for user ${userId}`);
+          }
+    }
 //#################################################################### DELETE USER ############################################################### 
     /**
      * Deletes a user by ID from the Firestore database.

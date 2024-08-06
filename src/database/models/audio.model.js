@@ -21,7 +21,12 @@ const Audio = sequelize.define('Audio', {
     allowNull: false,
   },
   galleryId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
+    allowNull: true,
+  },
+  galleryName: {
+    type: DataTypes.STRING,
+    defaultValue: '',
     allowNull: true,
   },
   ownerId: {
@@ -38,7 +43,6 @@ const Audio = sequelize.define('Audio', {
     allowNull: false,
   },
 }, {
-  // tableName: 'audios',
   timestamps: true,
 });
 

@@ -3,7 +3,7 @@ const logger = require('../loggers/logger');
 
 // Define a stream to write morgan logs to winston
 const stream = {
-  write: (message) => logger.info(message.trim())
+  write: (message) => logger.debug(message.trim())
 };
 
 // Define a morgan logging format

@@ -8,6 +8,7 @@ const { NotFoundError, InternalServerError, UnauthorizedError } = require('../..
 const { getFirebaseStorage } = require('../../database/firebase/init');
 const { Audio } = require('../../database/models/init');
 const logger = require('../../loggers/logger');
+const galleryService = require('./gallery.service');
 const { ref, uploadBytesResumable, getDownloadURL, deleteObject } = require('firebase/storage');
 class audioService{
 //################################################################## STORE audio IN MEMORY ######################################################################//
@@ -50,14 +51,23 @@ class audioService{
     }
   };
 //################################################################## SAVE AUDIO TO DATABASE ######################################################################//
-  static UploadAudioToDB = async (req, file, downloadURL, path) => {
+  static UploadAudioToDB = async (req, file, downloadURL, path, galleryName) => {
     try {
+      const userId = req.user.id;
+      let gallery = await galleryService.findOne(galleryName, userId);
+
+      if (!gallery) {
+        gallery = await  galleryService.createGallery(galleryName, userId);
+      }
+
       const newAudio = await Audio.create({
         filename: file.originalname,
         path: path,
         originalName: file.originalname,
-        ownerId: req.user.id, // Assume this comes from the request body
-        description: 'description', // Assume this comes from the request body
+        galleryId: gallery.id,
+        galleryName: gallery.name,
+        ownerId: userId,
+        description: 'description',
         url: downloadURL,
       });
       logger.info(`Successfully saved audio: ${file.originalname}`);

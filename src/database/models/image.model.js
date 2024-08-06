@@ -21,7 +21,12 @@ const Image = sequelize.define('Image', {
     allowNull: false,
   },
   galleryId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
+    allowNull: true,
+  },
+  galleryName: {
+    type: DataTypes.STRING,
+    defaultValue: '',
     allowNull: true,
   },
   ownerId: {
@@ -39,11 +44,9 @@ const Image = sequelize.define('Image', {
   },  
   features: {
     type: DataTypes.JSON,
-    defaultValue: {},
     allowNull: true,
   },
 }, {
-  // tableName: 'images',
   timestamps: true,
 });
 

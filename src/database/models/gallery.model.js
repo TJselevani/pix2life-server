@@ -3,8 +3,8 @@ const sequelize = require('../sequelize/init');
 
 const Gallery = sequelize.define('Gallery', {
   id: {
-    type: DataTypes.INTEGER,
-    defaultValue: DataTypes.INTEGER,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
   name: {
@@ -13,6 +13,7 @@ const Gallery = sequelize.define('Gallery', {
   },
   description: {
     type: DataTypes.STRING,
+    defaultValue: '',
     allowNull: true
   },
   userId: {
@@ -20,7 +21,6 @@ const Gallery = sequelize.define('Gallery', {
     allowNull: false,
   }
 }, {
-  tableName: 'galleries',
   timestamps: true
 });
 

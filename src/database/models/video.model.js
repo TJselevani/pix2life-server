@@ -21,7 +21,12 @@ const Video = sequelize.define('Video', {
     allowNull: false,
   },
   galleryId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
+    allowNull: true,
+  },
+  galleryName: {
+    type: DataTypes.STRING,
+    defaultValue: '',
     allowNull: true,
   },
   ownerId: {
@@ -38,7 +43,6 @@ const Video = sequelize.define('Video', {
     allowNull: false,
   },
 }, {
-  // tableName: 'videos',
   timestamps: true,
 });
 

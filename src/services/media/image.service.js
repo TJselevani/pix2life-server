@@ -7,12 +7,17 @@ const axios = require('axios');
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
+const { promisify } = require('util');
 // const cv = require('opencv4nodejs');
 const { NotFoundError, InternalServerError, UnauthorizedError } = require('../../errors/application-errors');
 const { getFirebaseStorage } = require('../../database/firebase/init');
 const { Image } = require('../../database/models/init');
+const tensorflow = require('../matching/tensorFlow');
 const logger = require('../../loggers/logger');
+const galleryService = require('./gallery.service')
 const { ref, uploadBytesResumable, getDownloadURL, deleteObject } = require('firebase/storage');
+
+const unlinkAsync = promisify(fs.unlink);
 class ImageService{
 //################################################################## STORE IMAGE IN MEMORY ######################################################################//
 // Multer configuration for disk storage
@@ -27,9 +32,9 @@ class ImageService{
 
   static store = multer({ storage: this.diskStorage }).single('image');
 
-  static storeImage = async (req) => {
+  static saveImageToStorage = async (req) => {
     return new Promise((resolve, reject) => {
-        this.upload(req, req.res, (err) => {
+        this.store(req, req.res, (err) => {
             if (err) {
                 logger.error(`Upload error: ${err}`);
                 return reject(new InternalServerError('Cannot Store file to Disk'));
@@ -38,6 +43,16 @@ class ImageService{
         });
     });
   };
+
+  static async deleteImageFromStorage(filePath) {
+    try {
+      await unlinkAsync(filePath);
+      logger.info(`Deleted file: ${filePath}`);
+    } catch (error) {
+      logger.error(`Error deleting file: ${error.message}`);
+      throw new Error('Failed to delete file');
+    }
+  }
 
 // Multer configuration for file storage
   static upload = multer({
@@ -78,17 +93,29 @@ class ImageService{
     }
   };
 //################################################################## SAVE IMAGE TO DATABASE ######################################################################//
-  static UploadImageToDB = async (req, file, downloadURL, path) => {
+  static UploadImageToDB = async (req, file, downloadURL, path, galleryName) => {
     try {
+      const userId = req.user.id;
+      let gallery = await galleryService.findOne(galleryName, userId);
+
+      if (!gallery) {
+        gallery = await  galleryService.createGallery(galleryName, userId);
+      }
+
+      const features = await tensorflow.extractFeatures(downloadURL);
+
       const newImage = await Image.create({
         filename: file.originalname,
         path: path,
         originalName: file.originalname,
-        ownerId: req.user.id, // Assume this comes from the request body
-        description: 'description', // Assume this comes from the request body
+        galleryId: gallery.id,
+        galleryName: gallery.name,
+        ownerId: userId,
+        description: 'description',
         url: downloadURL,
+        features: features
       });
-      logger.info(`Successfully saved image: ${file.originalname}`);
+      logger.info(`Successfully saved image to Database: ${file.originalname}`);
       return newImage;
     } catch (error) {
       logger.error(`Unable to Save Image to Database: ${error.message}`);
@@ -116,7 +143,7 @@ class ImageService{
       const images = await Image.findAll({ where: {ownerId: user.id} });
       if (!images || images.length === 0) {
         logger.warn(`images not found`);
-        return []
+        return [];
       }
       logger.info(`Successfully retrieved ${images.length} images for ${user.username} ${user.id} ${user.email}`);
       return images;

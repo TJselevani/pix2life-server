@@ -1,14 +1,18 @@
 const asyncHandler = require('../middleware/async-handler.middleware');
 const logger = require("../loggers/logger");
-const { BadRequestError, NotFoundError } = require("../errors/application-errors");
+const { BadRequestError, NotFoundError, NoContentFound } = require("../errors/application-errors");
 const audioService = require("../services/media/audio.service");
 
 
 const uploadAudio = asyncHandler(async (req, res,) => {
     const audio = req;
+    const galleryName = req.query.galleryName;
+    if(!galleryName){
+        throw new BadRequestError('No Gallery Specified'); 
+    }
     const file = await audioService.saveAudioToMemory(audio);
     const { downloadURL, path }  = await audioService.UploadAudioToFirestoreDB(file);
-    const newAudio = await audioService.UploadAudioToDB(req, file, downloadURL, path);
+    const newAudio = await audioService.UploadAudioToDB(req, file, downloadURL, path, galleryName);
 
     if (newAudio) {
         // await saveAudioMetaDataDB(file);

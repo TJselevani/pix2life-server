@@ -13,6 +13,12 @@ class ApplicationError extends Error {
   }
 }
 
+class NoContentFound extends ApplicationError {
+  constructor(message = 'No Content Found') {
+    super(message, 204);
+  }
+}
+
 class BadRequestError extends ApplicationError {
   constructor(message = 'Bad Request') {
     super(message, 400);
@@ -50,4 +56,5 @@ module.exports = {
   ForbiddenError,
   NotFoundError,
   InternalServerError,
+  NoContentFound
 };

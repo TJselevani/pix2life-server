@@ -2,6 +2,7 @@ node_modules
 npm-debug.log
 node_modules
 logs
+opencv_installation
 uploads
 .DS_Store
 .git
