@@ -29,11 +29,11 @@ class VideoService{
     });
   }
 //################################################################## UPLOAD VIDEO TO FIRESTORE ######################################################################//
-  static UploadVideoToFirestoreDB = async (file) => {
+  static UploadVideoToFirestoreDB = async (file, userId) => {
     try {
       const firebaseStorage = getFirebaseStorage();
       const fileName = `${Date.now()}_${file.originalname}`;
-      const directory = 'videos/';
+      const directory = `videos/${userId}/`;
 
       const fileRef = ref(firebaseStorage, `${directory}${fileName}`);
       const snapshot = await uploadBytesResumable(fileRef, file.buffer);

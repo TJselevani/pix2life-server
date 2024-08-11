@@ -9,12 +9,13 @@ const tensorflow = require('../services/matching/tensorFlow');
 
 const uploadImage = asyncHandler(async (req, res, next) => {
     const image = req;
+    const userId = req.user.id;
     const galleryName = req.query.galleryName;
     if(!galleryName){
         throw new BadRequestError('No Gallery Specified'); 
     }
     const file = await imageService.saveImageToMemory(image);
-    const { downloadURL, path }  = await imageService.UploadImageToFirestoreDB(file);
+    const { downloadURL, path }  = await imageService.UploadImageToFirestoreDB(file, userId);
     const newImage = await imageService.UploadImageToDB(req, file, downloadURL, path, galleryName);
 
     if (newImage) {

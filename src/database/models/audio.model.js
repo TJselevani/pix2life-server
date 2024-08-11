@@ -20,10 +20,6 @@ const Audio = sequelize.define('Audio', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  galleryId: {
-    type: DataTypes.UUID,
-    allowNull: true,
-  },
   galleryName: {
     type: DataTypes.STRING,
     defaultValue: '',

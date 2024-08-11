@@ -2,7 +2,7 @@ const { Sequelize } = require('sequelize');
 const config = require('./config');
 const logger = require('../../loggers/logger');
 
-const env = process.env.NODE_ENV == 'development' ? "mysql" : "postgres";
+const env = process.env.NODE_ENV !== 'development' ? "mysql" : "postgres";
 const dbConfig = config[env];
 
 if (!dbConfig) {

@@ -6,12 +6,13 @@ const audioService = require("../services/media/audio.service");
 
 const uploadAudio = asyncHandler(async (req, res,) => {
     const audio = req;
+    const userId  =req.user.id;
     const galleryName = req.query.galleryName;
     if(!galleryName){
         throw new BadRequestError('No Gallery Specified'); 
     }
     const file = await audioService.saveAudioToMemory(audio);
-    const { downloadURL, path }  = await audioService.UploadAudioToFirestoreDB(file);
+    const { downloadURL, path }  = await audioService.UploadAudioToFirestoreDB(file, userId);
     const newAudio = await audioService.UploadAudioToDB(req, file, downloadURL, path, galleryName);
 
     if (newAudio) {

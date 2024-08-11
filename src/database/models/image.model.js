@@ -20,10 +20,6 @@ const Image = sequelize.define('Image', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  galleryId: {
-    type: DataTypes.UUID,
-    allowNull: true,
-  },
   galleryName: {
     type: DataTypes.STRING,
     defaultValue: '',

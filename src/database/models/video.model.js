@@ -20,10 +20,6 @@ const Video = sequelize.define('Video', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  galleryId: {
-    type: DataTypes.UUID,
-    allowNull: true,
-  },
   galleryName: {
     type: DataTypes.STRING,
     defaultValue: '',

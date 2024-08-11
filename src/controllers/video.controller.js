@@ -6,12 +6,13 @@ const videoService = require("../services/media/videos.services");
 
 const uploadVideo = asyncHandler(async (req, res,) => {
     const video = req;
+    const userId = req.user.id;
     const galleryName = req.query.galleryName;
     if(!galleryName){
         throw new BadRequestError('No Gallery Specified'); 
     }
     const file = await videoService.saveVideoToMemory(video);
-    const { downloadURL, path } = await videoService.UploadVideoToFirestoreDB(file);
+    const { downloadURL, path } = await videoService.UploadVideoToFirestoreDB(file, userId);
     const newVideo = await videoService.UploadVideoToDB(req, file, downloadURL, path, galleryName);
 
     if (newVideo) {

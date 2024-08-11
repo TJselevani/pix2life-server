@@ -71,11 +71,11 @@ class ImageService{
     });
   }
 //################################################################## UPLOAD IMAGE TO FIRESTORE ######################################################################//
-  static UploadImageToFirestoreDB = async (file) => {
+  static UploadImageToFirestoreDB = async (file, userId) => {
     try {
       const firebaseStorage = getFirebaseStorage();
       const fileName = `${Date.now()}_${file.originalname}`;
-      const directory = 'images/';
+      const directory = `images/`;
 
       const fileRef = ref(firebaseStorage, `${directory}${fileName}`);
       const snapshot = await uploadBytesResumable(fileRef, file.buffer);

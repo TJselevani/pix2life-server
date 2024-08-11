@@ -29,11 +29,11 @@ class audioService{
     });
   }
 //################################################################## UPLOAD audio TO FIRESTORE ######################################################################//
-  static UploadAudioToFirestoreDB = async (file) => {
+  static UploadAudioToFirestoreDB = async (file, userId) => {
     try {
       const firebaseStorage = getFirebaseStorage();
       const fileName = `${Date.now()}_${file.originalname}`;
-      const directory = 'audios/';
+      const directory = `audios/${userId}/`;
       
       const fileRef = ref(firebaseStorage, `${directory}${fileName}`);
       const snapshot = await uploadBytesResumable(fileRef, file.buffer);

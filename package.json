@@ -1,13 +1,13 @@
 {
   "name": "pix2life-server",
   "version": "1.0.0",
-  "main": "src/server.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev-server": "NODE_ENV=development nodemon src/server.js",
-    "dev": "NODE_ENV=development scripts/dev.sh",
-    "start": "NODE_ENV=development nodemon src/server.js",
-    "prod": "NODE_ENV=production node src/server.js",
+    "dev-server": "NODE_ENV=test nodemon src/server.js",
+    "dev": "NODE_ENV=development node src/server.js",
+    "start": "NODE_ENV=development node src/server.js",
+    "production": "NODE_ENV=production node src/server.js",
     "proxy": "ngrok http 4040 --domain capital-obviously-terrier.ngrok-free.app"
   },
   "author": "tjselevani",
