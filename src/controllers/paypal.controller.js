@@ -1,5 +1,4 @@
-const PayPalService  = require('../services/payment/paypal.services');
-const payPalService = new PayPalService();
+const payPalService = require('../services/payment/paypal.services');
 
 const returnUrl = `${process.env.BASE_URL}/payment/paypal/success`;
 const cancelUrl = `${process.env.BASE_URL}/payment/paypal/cancel`;

@@ -140,7 +140,7 @@ class ImageService{
 //########################################################################## GET ALL USER IMAGES ##############################################################//
   static getAllUserImages = async (user) => {
     try {
-      const images = await Image.findAll({ where: {ownerId: user.id} });
+      const images = await Image.findAll({ where: { ownerId: user.id } });
       if (!images || images.length === 0) {
         logger.warn(`images not found`);
         return [];

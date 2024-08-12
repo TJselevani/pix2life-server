@@ -4,6 +4,9 @@ const { Password } = require('../database/models/init');
 const emailService = require('./notification.service');
 const authService = require('./auth.service');
 const logger = require("../loggers/logger");
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const { Op } = require('sequelize');
 class UserService{
 //############################################################## CREATE USER ##################################################################
     /**
@@ -24,12 +27,13 @@ class UserService{
         throw new BadRequestError('User Already Exists');   
     }
 //############################################################ NOTIFY USER #######################################################################
-    static notifyUser = async (user) => {
+    static welcomeEmail = async (user) => {
          // Send welcome email
-         const subject = 'Welcome to Our Service, PIX2LIFE';
-         const text = `Hi ${user.name}, we are exited to have you register with us`;
+         const to = user.email;
+         const subject = 'Welcome to PIX2LIFE';
+         const text = `Hi there ${user.name}, we are exited to have you register with us`;
          const html = `<p>Your Username is your Email, ${user.email}</p><br/><p>Welcome to our service!</p>`;
-         await emailService.sendEmail(user.email, subject, text, html);
+         await emailService.sendEmail(to, subject, text, html);
     }
 //############################################################ CREATE PASSWORD ####################################################################### 
     /**
@@ -50,6 +54,25 @@ class UserService{
             throw new InternalServerError(`Unable to Create Password for ${user.name}`);
         }
     };
+
+    static updatePassword = async (user, newHashedPassword) => {
+        try {
+            const updatedPassword = await Password.update(
+                { hash: newHashedPassword },
+                { where: { uid: user.id } }
+            );
+            
+            if (updatedPassword[0] === 0) { // If no rows were affected
+                throw new Error('Password update failed');
+            }
+    
+            return updatedPassword.hash;
+        } catch (error) {
+            logger.error(`Unable to Update Password for ${user.name}: ${error.message}`);
+            throw new InternalServerError(`Unable to Update Password for ${user.name}`);
+        }
+    };
+    
 //############################################################## GET ALL USERS ##################################################################### 
     /**
      * Retrieves all users from the Firestore database.
@@ -64,7 +87,8 @@ class UserService{
             logger.info(`Fetched ${users.length} users.`);
             return users;
         } catch (error) {
-            throw new InternalServerError(`Failed to retrieve all users: ${error}`);
+            logger.error(`Failed to retrieve all users: ${error.message}`);
+            throw new InternalServerError(`Failed to retrieve all users`);
         }
     }
 
@@ -80,7 +104,8 @@ class UserService{
             if(!user){ return null }
             return user;
           } catch (error) {
-            throw new InternalServerError(`Failed to retrieve data by ID: ${error}`);
+            logger.error(`Failed to Retrieve Data by ID: ${error.message}`);
+            throw new InternalServerError(`Failed to retrieve data`);
           }
     }
 //################################################################ GEY USER BUY FIELD ################################################################### 
@@ -106,7 +131,8 @@ class UserService{
             logger.info(`User found: ${JSON.stringify(user)}`);
             return user;
         } catch (error) {
-            throw new InternalServerError(`Failed to retrieve data by ${field}: ${error}`);
+            logger.error(`${error.message}`);
+            throw new InternalServerError(`Failed to retrieve data by`);
         }
     };
 //############################################################# GET USER BY EMAIL ###################################################################### 
@@ -132,7 +158,8 @@ class UserService{
             logger.info(`User successfully retrieved`);
             return user;
           } catch (error) {
-            throw new InternalServerError(`Failed to retrieve user by email: ${error}`);
+            logger.error(`Unable to retrieve user by email: ${error}`);
+            throw new InternalServerError(`Failed to retrieve user by email`);
           }
     }
 //################################################################ GET USER BY TOKEN ################################################################### 
@@ -229,10 +256,88 @@ class UserService{
               return true;
             }
             throw new BadRequestError('Unable to delete user');
-          } catch (error) {
+        } catch (error) {
             logger.error(`Failed to delete data: ${error}`);
-          }
+        }
     }
+//#################################################################### USER Forgot Password ############################################################### 
+    static async handleForgotPassword(email){
+        try {
+            const user = await this.getUserByEmail(email);
+            if (!user) {
+                throw new BadRequestError(`User with Email ${email} not found`);
+            }
+
+            const resetCode = crypto.randomBytes(3).toString('hex').toUpperCase();
+            logger.info(`Reset code: ${resetCode}`);
+            user.resetCode = resetCode;
+            user.resetCodeExpires = Date.now() + 3600000; // 1 hour
+
+            await user.save();
+
+            const to = user.email;
+            const subject = 'Password Reset Code';
+            const text = `Your password reset code is ${resetCode}`;
+            const html = `<p>Do not share your CODE with anyone anonymous</p> <br/> <p>${resetCode}</p> </br> <p>Thank you for using our service!</p>`;
+            await emailService.sendEmail(to, subject, text, html);
+        } catch (error) {
+            logger.error(`Handling Forgot Password error: ${error}`);
+            throw new InternalServerError('Email Account does not exist');
+        }
+    }
+//#################################################################### USER Forgot Password ############################################################### 
+    static async handleVerifyResetCode(email, resetCode){
+        try {
+            const user = await this.getUserByEmail(email);
+            if (!user) {
+                throw new BadRequestError(`User with Email ${email} not found`);
+            }
+
+            if(user.resetCode != resetCode){
+                throw new BadRequestError('Invalid Reset Code')
+            }
+            return true;
+        } catch (error) {
+            logger.error(`Verifying Reset Code: ${error}`)
+            throw new InternalServerError('Invalid Code')
+        }
+    }
+//#################################################################### USER Reset Password ############################################################### 
+    static async handleResetPassword(email, resetCode, password){
+        try {
+            const newHashedPassword = await this.hashPassword(password);
+
+            const user = await User.findOne({
+                where: {
+                    email: email,
+                    resetCode: resetCode,
+                    resetCodeExpires: {
+                        [Op.gt]: Date.now()
+                    }
+                }
+            });
+
+            if (!user) {
+                throw new BadRequestError('The reset code is invalid or has expired');
+            }
+
+            const newPass = await this.updatePassword(user, newHashedPassword);
+
+            user.resetCode = undefined;
+            user.resetCodeExpires = undefined;
+
+            await user.save();
+        } catch (error) {
+            logger.error(`Handling Reset Password Error: ${error}`);
+            throw new InternalServerError('failed to Reset Password');
+        }
+    }
+
+    static hashPassword = async (password) => {
+        return await bcrypt.hash(password, 10);
+      }
 }
+
+
 
 module.exports = UserService;

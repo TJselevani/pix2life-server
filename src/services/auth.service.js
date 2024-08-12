@@ -1,8 +1,3 @@
-const dotenv = require('dotenv');
-const result = dotenv.config();
-if (result.error) {
-  dotenv.config({ path: '.env.default' });
-}
 const jsonwebtoken = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const userService = require('./user.service');

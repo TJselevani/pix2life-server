@@ -4,8 +4,6 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const fs = require('fs');
-require('dotenv').config();
-
 
 // Create an Express App
 const app = express();
@@ -54,16 +52,15 @@ const paymentRoute = require('./routes/payment');
 const webhookRoute = require('./routes/webhook');
 
 // Request Endpoints
-app.use('/api/v2/user', userRoute);
-app.use('/api/v2/image', imageRoute);
-app.use('/api/v2/audio', audioRoute);
-app.use('/api/v2/video', videoRoute);
-app.use('/api/v2/payment', paymentRoute);
+app.use('/api/v3/auth/user', userRoute);
+app.use('/api/v3/image', imageRoute);
+app.use('/api/v3/audio', audioRoute);
+app.use('/api/v3/video', videoRoute);
+app.use('/api/v3/payment', paymentRoute);
 app.use('/webhook', webhookRoute);
 
-// Catch-all Route for 404 Not Found
 app.use('/', (req, res) => {
-  res.status(404).json({ message: 'Welcome to PIX@LIFE' });
+  res.status(200).json({ message: 'Welcome to PIX@LIFE' });
 });
 
 // Catch-all Route for 404 Not Found

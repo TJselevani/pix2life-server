@@ -76,4 +76,4 @@ class PayPalService {
   }
 }
 
-module.exports = PayPalService;
+module.exports = new PayPalService();

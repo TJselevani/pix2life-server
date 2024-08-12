@@ -4,8 +4,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev-server": "NODE_ENV=test nodemon src/server.js",
-    "dev": "NODE_ENV=development node src/server.js",
+    "dev-server": "scripts/dev.sh",
+    "dev": "NODE_ENV=testing node src/server.js",
     "start": "NODE_ENV=development node src/server.js",
     "production": "NODE_ENV=production node src/server.js",
     "proxy": "ngrok http 4040 --domain capital-obviously-terrier.ngrok-free.app"

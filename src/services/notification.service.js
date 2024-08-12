@@ -4,7 +4,8 @@ const logger = require('../loggers/logger');
 class EmailService {
     constructor() {
         this.transporter = nodemailer.createTransport({
-            service: 'hotmail', // Replace with your email provider
+            host: process.env.EMAIL_PROVIDER, // Replace with your email provider
+            port: process.env.EMAIL_PORT,
             auth: {
                 user: process.env.EMAIL_USER, // Your email address
                 pass: process.env.EMAIL_PASS  // Your email password
@@ -23,7 +24,7 @@ class EmailService {
 
         try {
             const info = await this.transporter.sendMail(mailOptions);
-            logger.info(`Email sent: ${info.response}`);
+            logger.debug(`Email sent: ${info.response}`);
         } catch (error) {
             logger.error(`Error sending email: ${error}`);
         }
