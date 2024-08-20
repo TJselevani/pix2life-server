@@ -242,6 +242,37 @@ class UserService{
             throw new InternalServerError(`Unable to update avatar URL for user ${userId}`);
           }
     }
+//################################################################## UPDATE USER DATA ################################################################# 
+    static async updateUserLoginDate(userId){
+        try {
+            const user = await User.findByPk(userId);
+            if (!user) {
+              logger.warn(`User with id ${userId} not found`);
+            }
+        
+            user.lastLogin = new Date();
+        
+            await user.save();
+            
+        } catch (error) {
+            logger.warn('User Login Update Error');
+        }
+    } 
+
+    static async retrieveUserLoginDate(userId){
+        try {
+            const user = await this.getUserById(userId);
+            if (!user) {
+              logger.warn(`User with id ${userId} not found`);
+            }
+
+            return user.lastLogin ? user.lastLogin.toISOString() : 'Never logged in'
+            
+        } catch (error) {
+            logger.warn('User Retrieve Login Error');
+        }
+    } 
+
 //#################################################################### DELETE USER ############################################################### 
     /**
      * Deletes a user by ID from the Firestore database.
@@ -265,6 +296,7 @@ class UserService{
         try {
             const user = await this.getUserByEmail(email);
             if (!user) {
+                logger.warn(`User with Email ${email} not found`);
                 throw new BadRequestError(`User with Email ${email} not found`);
             }
 

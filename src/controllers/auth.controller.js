@@ -22,6 +22,7 @@ const createPassword = asyncHandler(async (req, res, next)  => {
     const authUser = await userService.getUserByEmail(email);
     const hashedPassword = await authService.hashPassword(password);
     await userService.createPassword(authUser, hashedPassword);
+    await userService.updateUserLoginDate(authUser.id);
     logger.info(`Password created Successfully`)
     res.json({message: 'Password Created Successfully'});
 })
@@ -33,6 +34,7 @@ const loginUser = asyncHandler(async (req, res, next)  => {
     if(!authUser) {
         throw new BadRequestError('Invalid Credentials');
     };
+    await userService.updateUserLoginDate(authUser.id);
     const token = await authService.generateToken(authUser);
     logger.info(`${authUser.email} Logged In Successfully `)
     res.json({ user: authUser, token: token, message: `${authUser.email}, Login Successful!` });   

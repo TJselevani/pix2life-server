@@ -1,11 +1,21 @@
 const express = require('express');
 const router = express.Router()
 const extractToken = require('../middleware/extract-token.middleware');
-const {uploadImage, getAllImages, getUserImages, matchImage, uploadAvatar, updateImage, deleteImage} = require('../controllers/image.controller');
+const {uploadImage, getAllImages, getUserImages, getImagesByGallery, matchImage, uploadAvatar, updateImage, deleteImage} = require('../controllers/image.controller');
 
+const multer = require('multer');
+
+// Multer configuration for handling file and text fields
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage: storage,
+}).single('image');
 //************************************************************************************************************************************************
 
 router.get('/user/all', extractToken, getUserImages)
+
+router.get('/gallery/all', extractToken, getImagesByGallery)
 
 router.get('/get-all', extractToken,  getAllImages)
 

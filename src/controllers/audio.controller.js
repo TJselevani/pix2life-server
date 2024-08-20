@@ -35,6 +35,13 @@ const getUserAudioFiles = asyncHandler(async (req, res, next) => {
     res.json(audios);
 });
 
+const getAudioFilesByGallery = asyncHandler(async (req, res, next) => {
+    const user = req.user;
+    const galleryName = req.query.galleryName;
+    const audios = await audioService.getAudioFilesByGallery(user, galleryName);
+    res.json(audios);
+});
+
 const updateAudio = asyncHandler(async (req, res, next) => {
     const userId = req.user.id;
     const { audioId } = req.query;
@@ -61,4 +68,4 @@ const deleteAudio = asyncHandler(async (req, res) => {
     res.json(response);
 });    
 
-module.exports = { uploadAudio, getAllAudioFiles, getUserAudioFiles, updateAudio, deleteAudio }
+module.exports = { uploadAudio, getAllAudioFiles, getUserAudioFiles, getAudioFilesByGallery, updateAudio, deleteAudio }

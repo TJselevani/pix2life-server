@@ -39,7 +39,7 @@ app.use('/uploads', express.static('uploads'));
 
 // Logging middleware
 app.use((req, res, next) => {
-  logger.info(`method: ${req.method}, path: ${req.path}, Query: ${req.query}`);
+  logger.info(`method: ${req.method}, path: ${req.path} `);
   next();
 });
 
@@ -48,6 +48,7 @@ const userRoute = require('./routes/user');
 const imageRoute = require('./routes/image');
 const audioRoute = require('./routes/audio');
 const videoRoute = require('./routes/video');
+const galleryRoute = require('./routes/media');
 const paymentRoute = require('./routes/payment');
 const webhookRoute = require('./routes/webhook');
 
@@ -56,6 +57,7 @@ app.use('/api/v3/auth/user', userRoute);
 app.use('/api/v3/image', imageRoute);
 app.use('/api/v3/audio', audioRoute);
 app.use('/api/v3/video', videoRoute);
+app.use('/api/v3/gallery', galleryRoute);
 app.use('/api/v3/payment', paymentRoute);
 app.use('/webhook', webhookRoute);
 

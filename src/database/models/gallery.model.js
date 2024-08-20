@@ -11,6 +11,11 @@ const Gallery = sequelize.define('Gallery', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  iconUrl: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: '',
+  },
   description: {
     type: DataTypes.STRING,
     defaultValue: '',

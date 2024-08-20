@@ -108,6 +108,22 @@ class audioService{
       throw new InternalServerError(`Unable to retrieve ${user.username}'s audios`);
     }
   };
+
+  static getAudioFilesByGallery = async (user, galleryName) => {
+    try {
+      const audios = await Audio.findAll({ where: {ownerId: user.id, galleryName: galleryName} });
+      if (!audios || audios.length === 0) {
+        logger.warn(`audios not found`);
+        return []
+        // throw new NotFoundError(`No audios found for ${username}`);
+      }
+      logger.info(`Successfully retrieved ${audios.length} audios for ${user.username} ${user.id} ${user.email}`);
+      return audios;
+    } catch (e) {
+      logger.error(`Error retrieving audios: ${e}`);
+      throw new InternalServerError(`Unable to retrieve ${user.username}'s audios`);
+    }
+  };
 //########################################################################## UPDATE AUDIO ##############################################################//
   static async updateAudioDetails(audioId, userId, newFilename, newDescription) {
     try {

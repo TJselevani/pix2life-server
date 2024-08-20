@@ -107,6 +107,21 @@ class VideoService{
       throw new InternalServerError(`Unable to retrieve ${user.username}'s videos`);
     }
   };
+
+  static getVideosByGallery = async (user, galleryName) => {
+    try {
+      const videos = await Video.findAll({ where: {ownerId: user.id, galleryName: galleryName} });
+      if (!videos || videos.length === 0) {
+        logger.warn(`videos not found`);
+        return []
+      }
+      logger.info(`Successfully retrieved ${videos.length} videos for ${user.username} ${user.id} ${user.email}`);
+      return videos;
+    } catch (e) {
+      logger.error(`Error retrieving videos: ${e}`);
+      throw new InternalServerError(`Unable to retrieve ${user.username}'s videos`);
+    }
+  };
 //########################################################################## UPDATE VIDEO ##############################################################//
   static async updateVideoDetails(videoId, userId, newFilename, newDescription) {
     try {

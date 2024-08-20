@@ -37,6 +37,12 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  subscriptionPlan: {
+    type: DataTypes.ENUM,
+    values: ['Regular', 'Premium', 'PIX2LIFE'],
+    allowNull: false,
+    defaultValue: 'Regular',
+  },
   resetCode: {
     type: DataTypes.STRING,
     allowNull: true,

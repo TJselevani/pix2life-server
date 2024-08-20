@@ -152,6 +152,21 @@ class ImageService{
       throw new InternalServerError(`Unable to retrieve ${user.username}'s images`);
     }
   };
+
+  static getImagesByGallery = async (user, galleryName) => {
+    try {
+      const images = await Image.findAll({ where: { ownerId: user.id, galleryName: galleryName } });
+      if (!images || images.length === 0) {
+        logger.warn(`images not found`);
+        return [];
+      }
+      logger.info(`Successfully retrieved ${images.length} images for ${user.username} ${user.id} ${user.email}`);
+      return images;
+    } catch (e) {
+      logger.error(`Error retrieving images: ${e}`);
+      throw new InternalServerError(`Unable to retrieve ${user.username}'s images`);
+    }
+  };
 //########################################################################## UPDATE IMAGE ##############################################################//
   static async updateImageDetails(imageId, userId, newFilename, newDescription) {
     try {

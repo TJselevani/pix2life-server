@@ -29,7 +29,7 @@ class AuthService {
     }
 
     static generateToken = async (user) => {
-      const payload = { id: user.id, username: user.username, email: user.email };
+      const payload = { id: user.id, username: user.username, email: user.email, createdAt: new Date().toISOString() };
       return jsonwebtoken.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN  ?? '1h' });
     }
 

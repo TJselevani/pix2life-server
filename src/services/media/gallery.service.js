@@ -19,6 +19,21 @@ class GalleryService{
         }
     }
 
+    static async findAll(userId){
+        try {
+            const gallery = await Gallery.findAll({
+                where: {
+                  userId: userId
+                }
+            });
+            logger.info(`successfully retrieved gallery for ${userId}`);
+            return gallery;
+        } catch (error) {
+            logger.error(`Failed to retrieve gallery: ${error}`);
+            throw new InternalServerError('Gallery issue');
+        }
+    }
+
     static async createGallery(galleryName, userId){
         try {
             const gallery = await Gallery.create({
@@ -33,7 +48,23 @@ class GalleryService{
         }
     }
 
-    static async updateGallery(galleryName, userId, newName, newDescription){
+    static async createNewGallery(userId, galleryName, description, downloadURL){
+        try {
+            const gallery = await Gallery.create({
+                name: galleryName,
+                description: description,
+                iconUrl: downloadURL,
+                userId: userId,
+            });
+            logger.info(`successfully created New Gallery, ${galleryName}`);
+            return gallery;
+        } catch (error) {
+            logger.error(`Failed to Create gallery: ${error}`);
+            throw new InternalServerError('Failed to create gallery');
+        }
+    }
+
+    static async updateGallery(userId, galleryName, newName, newDescription, newUrl){
         try {
             const gallery = this.findOne(galleryName, userId);
             if(!gallery){
@@ -43,6 +74,7 @@ class GalleryService{
 
             gallery.name = newName || gallery.name;
             gallery.description = newDescription || gallery.description;
+            gallery.iconUrl = newUrl || gallery.iconUrl;
 
             await gallery.save;
             logger.info('successfully updated gallery');

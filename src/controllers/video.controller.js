@@ -35,6 +35,13 @@ const getUserVideos = asyncHandler(async (req, res, next) => {
     res.json(images);
 });
 
+const getVideosByGallery = asyncHandler(async (req, res, next) => {
+    const user = req.user;
+    const galleryName = req.query.galleryName;
+    const images = await videoService.getVideosByGallery(user, galleryName);
+    res.json(images);
+});
+
 const updateVideo = asyncHandler(async (req, res, next) => {
     const userId = req.user.id;
     const { videoId } = req.query;
@@ -62,4 +69,4 @@ const deleteVideo = asyncHandler(async (req, res) => {
     res.json(response);
 });  
 
-module.exports = { uploadVideo, getAllVideos, getUserVideos, updateVideo, deleteVideo }
+module.exports = { uploadVideo, getAllVideos, getUserVideos, getVideosByGallery, updateVideo, deleteVideo }

@@ -1,7 +1,7 @@
-const { getAllImagesByUserDB, getAllImagesDB, saveImageMetaDataDB, uploadImageDB } = require("../services/media/image.service");
+// const { getAllImagesByUserDB, getAllImagesDB, saveImageMetaDataDB, uploadImageDB } = require("../services/media/image.service");
 const asyncHandler = require('../middleware/async-handler.middleware');
 const logger = require("../loggers/logger");
-const { BadRequestError, UnauthorizedError, NotFoundError } = require("../errors/application-errors");
+const { BadRequestError, NotFoundError } = require("../errors/application-errors");
 const imageService = require("../services/media/image.service");
 const userService = require('../services/user.service');
 const tensorflow = require('../services/matching/tensorFlow');
@@ -14,6 +14,7 @@ const uploadImage = asyncHandler(async (req, res, next) => {
     if(!galleryName){
         throw new BadRequestError('No Gallery Specified'); 
     }
+
     const file = await imageService.saveImageToMemory(image);
     const { downloadURL, path }  = await imageService.UploadImageToFirestoreDB(file, userId);
     const newImage = await imageService.UploadImageToDB(req, file, downloadURL, path, galleryName);
@@ -79,6 +80,13 @@ const getUserImages = asyncHandler(async (req, res, next) => {
     res.json(images);
 });
 
+const getImagesByGallery = asyncHandler(async (req, res, next) => {
+    const user = req.user;
+    const galleryName = req.query.galleryName;
+    const images = await imageService.getImagesByGallery(user, galleryName);
+    res.json({ images: images});
+});
+
 const updateImage = asyncHandler(async (req, res, next) => {
     const userId = req.user.id;
     const { imageId } = req.query;
@@ -105,4 +113,4 @@ const deleteImage = asyncHandler(async (req, res) => {
     res.json({ message: 'Image deleted successfully' });
 });    
 
-module.exports = { uploadImage, getAllImages, getUserImages, uploadAvatar, matchImage, updateImage, deleteImage }
+module.exports = { uploadImage, getAllImages, getUserImages, getImagesByGallery, uploadAvatar, matchImage, updateImage, deleteImage }
