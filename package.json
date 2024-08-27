@@ -5,11 +5,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev-server": "scripts/dev.sh",
-    "dev": "NODE_ENV=testing node src/server.js",
-    "start": "NODE_ENV=development node src/server.js",
-    "production": "NODE_ENV=production node src/server.js",
+    "dev": "NODE_ENV=development node src/server.js",
+    "prod": "NODE_ENV=production node src/server.js",
+    "start": "node src/server.js",
     "proxy": "ngrok http 4040 --domain capital-obviously-terrier.ngrok-free.app"
   },
+
   "author": "tjselevani",
   "license": "ISC",
   "description": "Server side application for pix2life",
@@ -20,6 +21,7 @@
     "winston": "^3.13.1",
     "winston-transport": "^4.7.1"
   },
+
   "dependencies": {
     "@tensorflow-models/mobilenet": "^2.1.1",
     "@tensorflow/tfjs-node": "^4.20.0",
@@ -53,4 +55,5 @@
     "stripe": "^16.6.0",
     "uuid": "^10.0.0"
   }
+  
 }
