@@ -17,22 +17,23 @@ let sequelize;
 
 if (env === 'production') {
   // Use the DATABASE_URL for production
-  const databaseUrl = process.env.INTERNAL_URL;
+  const databaseUrl = process.env.INTERNAL_DATABASE_URL;
   sequelize = new Sequelize(databaseUrl, {
     dialect: 'postgres',
-    logging: false, // Set to console.log to see SQL queries
+    logging: false,
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false // or true, depending on your setup
+        rejectUnauthorized: false,
+        minVersion: 'TLSv1.2'
       },
-      connectTimeout: 30000 // Increase timeout to 30 seconds
+      connectTimeout: 30000 
     },
     pool: {
-      max: 5, // Maximum number of connections in the pool
-      min: 0, // Minimum number of connections in the pool
-      acquire: 30000, // Maximum time in milliseconds to acquire a connection
-      idle: 10000 // Maximum time in milliseconds that a connection can be idle before being released
+      max: 5, 
+      min: 0,
+      acquire: 30000,
+      idle: 10000 
     }
   });
 } else {
@@ -44,13 +45,13 @@ if (env === 'production') {
     {
       host: dbConfig.host,
       dialect: dbConfig.dialect,
-      logging: false, // Set to console.log to see SQL queries
+      logging: false, 
       port: dbConfig.port,
       pool: {
-        max: 5, // Maximum number of connections in the pool
-        min: 0, // Minimum number of connections in the pool
-        acquire: 30000, // Maximum time in milliseconds to acquire a connection
-        idle: 10000 // Maximum time in milliseconds that a connection can be idle before being released
+        max: 5,
+        min: 0, 
+        acquire: 30000,
+        idle: 10000
       }
     }
   );

@@ -1,22 +1,28 @@
-const { Sequelize } = require('sequelize');
-const url = "postgresql://pix2life_backend_db_user:ejtQawu3rAmcpJPOsyShUQE4P4RcTvyl@dpg-cr6rjt23esus73cktgb0-a.oregon-postgres.render.com/pix2life_backend_db"
+const dotenv = require('dotenv');
+const result = dotenv.config();
+if (result.error) {
+  dotenv.config({ path: '.env.default' });
+}
 
-const sequelize = new Sequelize(url,
-  {
-    host: 'cr6rjt23esus73cktgb0-a.oregon-postgres.render.com', //host
-    dialect: 'postgres',
-    port: 5432,
-    logging: false,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
-        minVersion: 'TLSv1.2' // Adjust based on the supported versions
-      },
-        connectTimeout: 30000
-      }
+const { Sequelize } = require('sequelize');
+
+const connectionString = process.env.EXTERNAL_DATABASE_URL;
+
+const sequelize = new Sequelize(connectionString, {
+  logging: false,
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  },
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false // You may need to tweak this based on your setup
+    }
   }
-);
+});
 
 sequelize.authenticate()
   .then(() => {
