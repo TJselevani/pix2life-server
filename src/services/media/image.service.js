@@ -30,7 +30,7 @@ class ImageService{
     }
   });  
 
-  static store = multer({ storage: this.diskStorage }).single('image');
+  static store = multer({ storage: this.diskStorage }).single('file');
 
   static saveImageToStorage = async (req) => {
     return new Promise((resolve, reject) => {
@@ -57,7 +57,7 @@ class ImageService{
 // Multer configuration for file storage
   static upload = multer({
     storage: multer.memoryStorage(), // Store files in memory
-  }).single('image');
+  }).single('file');
 
   static saveImageToMemory = async (req, res) => {
     return new Promise((resolve, reject) => {

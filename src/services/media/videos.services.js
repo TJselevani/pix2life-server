@@ -15,7 +15,7 @@ class VideoService{
   // Multer configuration for file storage
   static upload = multer({
     storage: multer.memoryStorage(), // Store files in memory
-  }).single('video');
+  }).single('file');
 
   static saveVideoToMemory = async (req, res) => {
     return new Promise((resolve, reject) => {

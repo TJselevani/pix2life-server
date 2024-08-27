@@ -10,7 +10,7 @@ const storage = multer.memoryStorage();
 
 const upload = multer({
   storage: storage,
-}).single('image');
+}).single('file');
 //************************************************************************************************************************************************
 
 router.get('/user/all', extractToken, getUserImages)
@@ -19,11 +19,11 @@ router.get('/gallery/all', extractToken, getImagesByGallery)
 
 router.get('/get-all', extractToken,  getAllImages)
 
-router.post('/upload', extractToken, uploadImage)
+router.post('/upload', extractToken, upload, uploadImage)
 
 router.post('/upload/match', extractToken, matchImage)
 
-router.post('/upload/avatar', extractToken, uploadAvatar)
+router.post('/upload/avatar', extractToken, upload, uploadAvatar)
 
 router.put('/update', extractToken, updateImage)
 

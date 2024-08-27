@@ -3,6 +3,15 @@ const router = express.Router()
 const extractToken = require('../middleware/extract-token.middleware');
 const { uploadAudio, getAllAudioFiles, getUserAudioFiles, getAudioFilesByGallery, updateAudio, deleteAudio} = require('../controllers/audio.controller');
 
+const multer = require('multer');
+
+// Multer configuration for handling file and text fields
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage: storage,
+}).single('file');
+
 //************************************************************************************************************************************************
 
 router.get('/user/all', extractToken, getUserAudioFiles)
@@ -11,7 +20,7 @@ router.get('/get-all', extractToken,  getAllAudioFiles)
 
 router.get('/gallery/all', extractToken,  getAudioFilesByGallery)
 
-router.post('/upload', extractToken, uploadAudio)
+router.post('/upload', extractToken, upload, uploadAudio)
 
 router.put('/update', extractToken, updateAudio)
 
