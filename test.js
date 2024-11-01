@@ -11,3 +11,12 @@ pool.connect((err, client, release) => {
   }
   console.log('Connected to the database');
 });
+
+
+// echo "# pix2life-server" >> README.md
+// git init
+// git add README.md
+// git commit -m "first commit"
+// git branch -M main
+// git remote add origin https://github.com/fozz66/pix2life-server.git
+// git push -u origin main
