@@ -2,16 +2,23 @@ const asyncHandler = require('../middleware/async-handler.middleware');
 const logger = require("../loggers/logger");
 const { BadRequestError, NotFoundError, NoContentFound } = require("../errors/application-errors");
 const audioService = require("../services/media/audio.service");
+const FileStorage = require('../util/clean-up-file');
 
 
 const uploadAudio = asyncHandler(async (req, res,) => {
-    const audio = req;
+    const file = req.file;
     const userId  =req.user.id;
     const galleryName = req.query.galleryName;
+
+    if (!file) {
+        throw new BadRequestError('Audio File not found/supported');
+    }
+
     if(!galleryName){
         throw new BadRequestError('No Gallery Specified'); 
     }
-    const file = await audioService.saveAudioToMemory(audio);
+
+    // const file = await audioService.saveAudioToMemory(audio);
     const { downloadURL, path }  = await audioService.UploadAudioToFirestoreDB(file, userId);
     const newAudio = await audioService.UploadAudioToDB(req, file, downloadURL, path, galleryName);
 
@@ -22,6 +29,9 @@ const uploadAudio = asyncHandler(async (req, res,) => {
     } else {
         throw new BadRequestError('File could not be uploaded, try again');
     }
+
+     //delete the file from disk if no longer needed
+     await FileStorage.cleanupFile(file.path);
 });
 
 const getAllAudioFiles = asyncHandler(async (req, res, next) => {

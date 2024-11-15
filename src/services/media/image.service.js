@@ -20,13 +20,15 @@ const { ref, uploadBytesResumable, getDownloadURL, deleteObject } = require('fir
 const unlinkAsync = promisify(fs.unlink);
 class ImageService{
 //################################################################## STORE IMAGE IN MEMORY ######################################################################//
-// Multer configuration for disk storage
+
+// Set up disk storage to save files in the 'uploads/' directory
   static diskStorage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads/');
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
     }
   });  
 
@@ -78,7 +80,7 @@ class ImageService{
       const directory = `images/${userId}/`;
 
       const fileRef = ref(firebaseStorage, `${directory}${fileName}`);
-      const snapshot = await uploadBytesResumable(fileRef, file.buffer);
+      const snapshot = await uploadBytesResumable(fileRef, file.path);
       const downloadURL = await getDownloadURL(snapshot.ref);
       const path = snapshot.metadata.fullPath;
       

@@ -5,17 +5,24 @@ const { BadRequestError, NotFoundError } = require("../errors/application-errors
 const imageService = require("../services/media/image.service");
 const userService = require('../services/user.service');
 const tensorflow = require('../services/matching/tensorFlow');
+const cleanupFile = require('../util/clean-up-file');
+const FileStorage = require('../util/clean-up-file');
 
 
 const uploadImage = asyncHandler(async (req, res, next) => {
-    const image = req;
+    const file = req.file;
     const userId = req.user.id;
     const galleryName = req.query.galleryName;
+
+    if (!file) {
+        throw new BadRequestError('File not found/supported');
+    }
+
     if(!galleryName){
         throw new BadRequestError('No Gallery Specified'); 
     }
 
-    const file = await imageService.saveImageToMemory(image);
+    // const file = await imageService.saveImageToMemory(image);
     const { downloadURL, path }  = await imageService.UploadImageToFirestoreDB(file, userId);
     const newImage = await imageService.UploadImageToDB(req, file, downloadURL, path, galleryName);
 
@@ -26,13 +33,16 @@ const uploadImage = asyncHandler(async (req, res, next) => {
     } else {
         throw new BadRequestError('File could not be uploaded, try again');
     }
+
+    //delete the file from disk if no longer needed
+    await FileStorage.cleanupFile(file.path);
 });
 
 const uploadAvatar = asyncHandler(async (req, res, next) => {
     const image = req;
     const userId = req.user.id;
     const file = await imageService.saveImageToMemory(image);
-    const { downloadURL }  = await imageService.UploadImageToFirestoreDB(file);
+    const { downloadURL }  = await imageService.UploadImageToFirestoreDB(file, userId);
     const newAvatar = await userService.updateUserAvatar(userId, downloadURL)
 
     if (newAvatar) {
@@ -44,10 +54,10 @@ const uploadAvatar = asyncHandler(async (req, res, next) => {
 });
 
 const matchImage = asyncHandler(async (req, res, next) => {
-    const image = req;
+    const file = req.file;
     const user = req.user;
 
-    const file = await imageService.saveImageToStorage(image);
+    // const file = await imageService.saveImageToStorage(image);
     const imagePath = file.path;
 
     const features = await tensorflow.extractStoredImageFeatures(imagePath);
@@ -59,7 +69,8 @@ const matchImage = asyncHandler(async (req, res, next) => {
 
     const match = await tensorflow.findMatchingImage(features, images);
 
-    await imageService.deleteImageFromStorage(imagePath);
+     //delete the file from disk if no longer needed
+     await FileStorage.cleanupFile(file.path);
 
     if (!match) {
         throw new BadRequestError('No matching image found');

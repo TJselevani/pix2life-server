@@ -36,7 +36,7 @@ class audioService{
       const directory = `audios/${userId}/`;
       
       const fileRef = ref(firebaseStorage, `${directory}${fileName}`);
-      const snapshot = await uploadBytesResumable(fileRef, file.buffer);
+      const snapshot = await uploadBytesResumable(fileRef, file.path);
       const downloadURL = await getDownloadURL(snapshot.ref);
       const path = snapshot.metadata.fullPath;
       

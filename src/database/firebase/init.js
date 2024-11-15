@@ -21,6 +21,7 @@ const { initializeApp } = require('firebase/app');
 const logger = require('../../loggers/logger');
 const { getFirestore } = require('firebase/firestore');
 const { getStorage } = require('firebase/storage')
+const admin = require('firebase-admin');
 
 // Firebase configuration
 const firebaseConfig = {
@@ -36,6 +37,16 @@ const firebaseConfig = {
 let app = null;
 let firestore = null;
 let firebaseStorage = null;
+let firebaseAdmin = null;
+
+const initializeFirebaseAdmin = () => {
+  try {
+    firebaseAdmin = admin.initializeApp();
+    logger.info(`Initialized Firebase Admin`);
+  } catch (e) {
+    logger.error(`Failed to Initialize Firebase Admin: ${e}`);
+  }
+}
 
 const initializeFirebaseApp = () => {
   try {
@@ -67,5 +78,6 @@ const initializeFirebaseStorage = () => {
 
 const getFirestoreDB = () => firestore;
 const getFirebaseStorage = () => firebaseStorage;
+const getFirebaseAdmin = () => firebaseAdmin;
 
-module.exports = { initializeFirebaseApp, initializeFirestoreDB, getFirestoreDB, initializeFirebaseStorage, getFirebaseStorage };
+module.exports = { initializeFirebaseApp, initializeFirestoreDB, initializeFirebaseAdmin, getFirestoreDB, initializeFirebaseStorage, getFirebaseStorage, getFirebaseAdmin };

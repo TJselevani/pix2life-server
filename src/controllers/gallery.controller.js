@@ -3,15 +3,19 @@ const logger = require('../loggers/logger');
 const galleryService = require('../services/media/gallery.service');
 const imageService = require('../services/media/image.service');
 const asyncHandler = require('../middleware/async-handler.middleware');
-const multer = require('multer');
+const FileStorage = require('../util/clean-up-file');
 
 const createGallery = asyncHandler(async (req, res, next) => {
     // Accessing the file uploaded via Multer
-    const imageFile = req.file;
+    const file = req.file;
   
     // Accessing other form fields
     const galleryName = req.body.galleryName;
     const description = req.body.description;
+
+    if (!file) {
+      throw new BadRequestError('Image File not found/supported');
+    }
   
     if (!galleryName || !description) {
       throw new BadRequestError('Gallery Name or Description is missing');
@@ -21,7 +25,7 @@ const createGallery = asyncHandler(async (req, res, next) => {
   
     logger.info(`Gallery Name: ${galleryName}`);
   
-    const file = await imageService.saveImageToMemory(req);
+    // const file = await imageService.saveImageToMemory(req);
   
     const { downloadURL } = await imageService.UploadImageToFirestoreDB(file, userId);
   
@@ -32,6 +36,9 @@ const createGallery = asyncHandler(async (req, res, next) => {
     }
   
     await galleryService.createNewGallery(userId, galleryName, description, downloadURL);
+
+     //delete the file from disk if no longer needed
+     await FileStorage.cleanupFile(file.path);
   
     res.status(201).json({ message: 'Successfully Created Gallery' });
   });

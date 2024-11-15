@@ -28,9 +28,11 @@ const syncDatabase = require('./database/sequelize/sync');
 syncDatabase();
 
 //connect firebase
-const { initializeFirebaseApp, initializeFirebaseStorage } = require('./database/firebase/init');
+const { initializeFirebaseAdmin, initializeFirebaseApp, initializeFirebaseStorage } = require('./database/firebase/init');
+initializeFirebaseAdmin();
 initializeFirebaseApp();
 initializeFirebaseStorage();
+
 
 // Close the Mongoose connection when receiving SIGINT
 process.on('SIGINT', async () => {

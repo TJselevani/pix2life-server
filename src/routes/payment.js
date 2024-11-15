@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router()
 const extractToken = require('../middleware/extract-token.middleware');
 const { initiatePayment, makePayment, cancelPayment } = require('../controllers/paypal.controller');
-const { createStripePayment} = require('../controllers/stripe.controller')
+const { createStripePayment} = require('../controllers/stripe.controller');
 
 //************************************************************************************************************************************************
 
