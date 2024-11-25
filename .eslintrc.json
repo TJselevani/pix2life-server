@@ -1,0 +1,15 @@
+{
+  "env": {
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "prettier" // Add Prettier to the extends array
+  ],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error", // Show prettier errors as ESLint errors
+    "no-console": "warn" // Example rule; adjust as needed
+  }
+}

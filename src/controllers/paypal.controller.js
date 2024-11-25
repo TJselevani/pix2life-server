@@ -21,7 +21,7 @@ const makePayment = (async (req, res) => {
   const currency = 'USD'; // should match the currency in createPayment
 
   try {
-    const payment = await payPalService.executePayment(payerId, paymentId, amount, currency);
+    await payPalService.executePayment(payerId, paymentId, amount, currency);
     res.send('Payment Successful');
   } catch (error) {
     res.status(500).send(error.toString());

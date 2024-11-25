@@ -1,7 +1,7 @@
 const tf = require('@tensorflow/tfjs-node');
 const mobilenet = require('@tensorflow-models/mobilenet');
 const fs = require('fs');
-const fetch = require('node-fetch'); 
+const fetch = require('node-fetch');
 const { Image } = require('canvas');
 const logger = require('../../loggers/logger');
 const { InternalServerError } = require('../../errors/application-errors');
@@ -28,7 +28,7 @@ class TensorFlow {
       const decodedImage = tf.node.decodeImage(imageBuffer);
       const model = await this.loadModel();
       const logits = model.infer(decodedImage, 'conv_preds');
-      decodedImage.dispose();  // Dispose of the tensor to free up memory
+      decodedImage.dispose(); // Dispose of the tensor to free up memory
       return logits.arraySync();
     } catch (error) {
       logger.error(`Error extracting features: ${error.message}`);
@@ -48,7 +48,7 @@ class TensorFlow {
       // Load the model and extract features
       const model = await this.loadModel();
       const logits = model.infer(decodedImage, 'conv_preds');
-      
+
       // Dispose of the tensor to free up memory
       decodedImage.dispose();
 
@@ -100,9 +100,11 @@ class TensorFlow {
       let bestMatch = null;
       let bestScore = Infinity;
 
-      images.forEach(image => {
+      images.forEach((image) => {
         const dbFeatures = image.features;
-        const score = tf.losses.meanSquaredError(tf.tensor(dbFeatures), tf.tensor(features)).arraySync();
+        const score = tf.losses
+          .meanSquaredError(tf.tensor(dbFeatures), tf.tensor(features))
+          .arraySync();
 
         if (score < bestScore) {
           bestScore = score;

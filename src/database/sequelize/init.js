@@ -3,6 +3,7 @@ const config = require('./config');
 const logger = require('../../loggers/logger');
 
 // Determine the environment based on NODE_ENV, default to 'development'
+  // eslint-disable-next-line no-undef
 const environment = process.env.NODE_ENV || 'development'; // Default to 'development' if NODE_ENV is not set
 
 const env = environment === 'production' ? 'production' : 'development'; // Use 'postgres' for production, 'mysql' for development
@@ -21,6 +22,7 @@ let sequelize;
 
 if (environment === 'production') {
   // Use DATABASE_URL for production
+  // eslint-disable-next-line no-undef
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     // dialect: dbConfig.dialect,
     // host: dbConfig.host,

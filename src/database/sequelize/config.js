@@ -1,4 +1,4 @@
-const ip = require('ip');
+/* eslint-disable no-undef */
 const config = {
     production: {
       username: process.env.PG_USER,
