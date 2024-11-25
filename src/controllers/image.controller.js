@@ -64,7 +64,7 @@ const uploadAvatar = asyncHandler(async (req, res) => {
   }
 
   const folder = `images/${userId}/avatar/`;
-  const downloadURL = await CloudinaryService.uploadFile(imagePath, folder);
+  const { downloadURL } = await CloudinaryService.uploadFile(imagePath, folder);
   const newAvatar = await userService.updateUserAvatar(userId, downloadURL);
 
   if (newAvatar) {
