@@ -5,8 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev-server": "scripts/dev.sh",
-    "dev": "NODE_ENV=development node src/server.js",
-    "start": "NODE_ENV=production node src/server.js",
+    "dev": "NODE_ENV=development node --max_old_space_size=500 src/server.js",
+    "start": "NODE_ENV=production node --max_old_space_size=500 src/server.js",
     "proxy": "ngrok http 4040 --domain capital-obviously-terrier.ngrok-free.app",
     "format": "prettier -write .",
     "format:check": "prettier --check .",

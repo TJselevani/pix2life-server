@@ -25,6 +25,13 @@ const serve = () =>
   });
 serve();
 
+setInterval(() => {
+  // eslint-disable-next-line no-undef
+  const memoryUsage = process.memoryUsage();
+  const formattedOutput = formatMemoryUsage(memoryUsage);
+  logger.debug(formattedOutput);
+}, 10000);
+
 //connect sequelize
 const syncDatabase = require('./database/sequelize/sync');
 syncDatabase();
@@ -34,6 +41,7 @@ syncDatabase();
 
 // Connect to Cloudinary Storage
 const { initCloudinary } = require('./database/cloudinary/init');
+const { formatMemoryUsage } = require('./util/memory-tracking');
 initCloudinary();
 
 // Close the Mongoose connection when receiving SIGINT
