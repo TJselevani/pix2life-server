@@ -1,5 +1,6 @@
 // services/CloudinaryService.js
 const { cloudinary } = require('../../database/cloudinary/init');
+const logger = require('../../loggers/logger');
 
 class CloudinaryService {
   static async uploadFile(filePath, folder) {
@@ -13,7 +14,7 @@ class CloudinaryService {
       const publicId = result.public_id;
       return { downloadURL, publicId }; // Return the URL of the uploaded file
     } catch (error) {
-      console.error('Cloudinary upload error:', error);
+      logger.error('Cloudinary upload error:', error);
       throw new Error('Failed to upload file to Cloudinary.');
     }
   }
@@ -28,7 +29,7 @@ class CloudinaryService {
       await cloudinary.uploader.destroy(publicId, { resource_type: 'auto' });
       return true;
     } catch (error) {
-      console.error('Cloudinary delete error:', error);
+      logger.error('Cloudinary delete error:', error);
       throw new Error('Failed to delete file from Cloudinary.');
     }
   }
@@ -41,11 +42,11 @@ class CloudinaryService {
       if (result.result === 'ok') {
         return true; // Indicate success
       } else {
-        console.warn(`Failed to delete ${resourceType}:`, result);
+        logger.warn(`Failed to delete ${resourceType}:`, result);
         return false; // Indicate failure
       }
     } catch (error) {
-      console.error(`Cloudinary ${resourceType} delete error:`, error);
+      logger.error(`Cloudinary ${resourceType} delete error:`, error);
       throw new Error(`Failed to delete ${resourceType} from Cloudinary.`);
     }
   }

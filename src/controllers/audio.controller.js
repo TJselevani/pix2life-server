@@ -38,7 +38,7 @@ const uploadAudio = asyncHandler(async (req, res) => {
 
   if (newAudio) {
     // await saveAudioMetaDataDB(file);
-    logger.info(`Successfully created file: ${file.originalname}`);
+    logger.debug(`Successfully created file: ${file.originalname}`);
     res
       .status(201)
       .json({ message: `Successfully uploaded file: ${file.originalname}` });

@@ -27,6 +27,7 @@ const logger = createLogger({
   ),
   transports: logTransports,
   defaultMeta: { service: 'api' },
+  // eslint-disable-next-line no-undef
   level: process.env.NODE_ENV === 'development' ? 'silly' : 'info'
 });
 

@@ -49,10 +49,10 @@ class audioService {
       const downloadURL = await getDownloadURL(snapshot.ref);
       const path = snapshot.metadata.fullPath;
 
-      logger.info(`filename: ${fileName}`);
-      logger.info(`path: ${snapshot.metadata.fullPath}`);
-      logger.info(`Successfully uploaded audio: ${fileName}`);
-      logger.info(`url: ${downloadURL}`);
+      logger.debug(`filename: ${fileName}`);
+      logger.debug(`path: ${snapshot.metadata.fullPath}`);
+      logger.debug(`Successfully uploaded audio: ${fileName}`);
+      logger.debug(`url: ${downloadURL}`);
       return { downloadURL, path };
     } catch (error) {
       logger.error(`Unable to upload audio to Firebase: ${error.message}`);
@@ -86,7 +86,7 @@ class audioService {
         description: 'description',
         url: downloadURL,
       });
-      logger.info(`Successfully saved audio: ${file.originalname}`);
+      logger.debug(`Successfully saved audio: ${file.originalname}`);
       return newAudio;
     } catch (error) {
       logger.error(`Unable to Save audio to Database: ${error.message}`);
@@ -103,7 +103,7 @@ class audioService {
         logger.warn(`audios not found`);
         return [];
       }
-      logger.info(`Successfully retrieved all ${audios.length} audios`);
+      logger.debug(`Successfully retrieved all ${audios.length} audios`);
       return audios;
     } catch (e) {
       logger.error(`Error retrieving all audios: ${e}`);
@@ -119,7 +119,7 @@ class audioService {
         return [];
         // throw new NotFoundError(`No audios found for ${username}`);
       }
-      logger.info(
+      logger.debug(
         `Successfully retrieved ${audios.length} audios for ${user.username} ${user.id} ${user.email}`
       );
       return audios;
@@ -141,7 +141,7 @@ class audioService {
         return [];
         // throw new NotFoundError(`No audios found for ${username}`);
       }
-      logger.info(
+      logger.debug(
         `Successfully retrieved ${audios.length} audios for ${user.username} ${user.id} ${user.email}`
       );
       return audios;
@@ -162,7 +162,7 @@ class audioService {
     try {
       const audio = await Audio.findByPk(audioId);
       if (!audio) {
-        logger.info(`Audio with id ${audioId} not found`);
+        logger.debug(`Audio with id ${audioId} not found`);
         throw new NotFoundError(`Action Denied, audio not found`);
       }
 
@@ -176,7 +176,7 @@ class audioService {
 
       await audio.save();
 
-      logger.info(`Successfully updated audio ${audioId}`);
+      logger.debug(`Successfully updated audio ${audioId}`);
       return audio;
     } catch (e) {
       logger.error(`Error updating audio: ${e}`);
@@ -201,7 +201,7 @@ class audioService {
       await CloudinaryService.deleteResource(audio.path, 'video');
       await Audio.destroy({ where: { id: audioId } });
 
-      logger.info(
+      logger.debug(
         `Successfully deleted Audio: ${audio.filename} from storage and database`
       );
       return { message: 'Audio deleted successfully' };

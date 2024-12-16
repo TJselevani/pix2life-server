@@ -56,5 +56,5 @@ module.exports = {
   ForbiddenError,
   NotFoundError,
   InternalServerError,
-  NoContentFound
+  NoContentFound,
 };

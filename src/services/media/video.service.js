@@ -49,10 +49,10 @@ class VideoService {
       const downloadURL = await getDownloadURL(snapshot.ref);
       const path = snapshot.metadata.fullPath;
 
-      logger.info(`filename: ${fileName}`);
-      logger.info(`path: ${snapshot.metadata.fullPath}`);
-      logger.info(`Successfully uploaded video: ${fileName}`);
-      logger.info(`url: ${downloadURL}`);
+      logger.debug(`filename: ${fileName}`);
+      logger.debug(`path: ${snapshot.metadata.fullPath}`);
+      logger.debug(`Successfully uploaded video: ${fileName}`);
+      logger.debug(`url: ${downloadURL}`);
       return { downloadURL, path };
     } catch (error) {
       logger.error(`Unable to upload video to Firebase: ${error.message}`);
@@ -86,7 +86,7 @@ class VideoService {
         description: 'description',
         url: downloadURL,
       });
-      logger.info(`Successfully saved video: ${file.originalname}`);
+      logger.debug(`Successfully saved video: ${file.originalname}`);
       return newVideo;
     } catch (error) {
       logger.error(`Unable to Save video to Database: ${error.message}`);
@@ -103,7 +103,7 @@ class VideoService {
         logger.warn(`audios not found`);
         return [];
       }
-      logger.info(`Successfully retrieved all ${videos.length} videos`);
+      logger.debug(`Successfully retrieved all ${videos.length} videos`);
       return videos;
     } catch (e) {
       logger.error(`Error retrieving all videos: ${e}`);
@@ -118,7 +118,7 @@ class VideoService {
         logger.warn(`videos not found`);
         return [];
       }
-      logger.info(
+      logger.debug(
         `Successfully retrieved ${videos.length} videos for ${user.username} ${user.id} ${user.email}`
       );
       return videos;
@@ -139,7 +139,7 @@ class VideoService {
         logger.warn(`videos not found`);
         return [];
       }
-      logger.info(
+      logger.debug(
         `Successfully retrieved ${videos.length} videos for ${user.username} ${user.id} ${user.email}`
       );
       return videos;
@@ -160,7 +160,7 @@ class VideoService {
     try {
       const video = await Video.findByPk(videoId);
       if (!video) {
-        logger.info(`video with id ${videoId} not found`);
+        logger.warn(`video with id ${videoId} not found`);
         throw new NotFoundError(`Action Denied, video not found`);
       }
 
@@ -174,7 +174,7 @@ class VideoService {
 
       await video.save();
 
-      logger.info(`Successfully updated video ${videoId}`);
+      logger.debug(`Successfully updated video ${videoId}`);
       return video;
     } catch (e) {
       logger.error(`Error updating video: ${e}`);
@@ -199,7 +199,7 @@ class VideoService {
       await CloudinaryService.deleteResource(video.path, 'video');
       await Video.destroy({ where: { id: videoId } });
 
-      logger.info(
+      logger.debug(
         `Successfully deleted Video: ${video.filename} from storage and database`
       );
       return { message: 'Video deleted successfully' };

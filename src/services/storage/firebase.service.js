@@ -1,6 +1,16 @@
-const { collection, doc, setDoc, getDoc, deleteDoc, updateDoc, getDocs } = require("firebase/firestore");
+const {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  deleteDoc,
+  updateDoc,
+  getDocs,
+  query,
+  where,
+} = require('firebase/firestore');
 const { getFirestoreDB } = require('../../database/firebase/init');
-const logger = require("../../loggers/logger");
+const logger = require('../../loggers/logger');
 const { v4: uuidv4 } = require('uuid');
 const { User } = require('../../database/models/init');
 
@@ -12,7 +22,7 @@ const uploadData = async (userObj) => {
   try {
     const firestore = getFirestoreDB();
     const uuid = uuidv4();
-    
+
     // Create a new User instance from the received object
     const userData = new User(
       uuid,
@@ -25,7 +35,7 @@ const uploadData = async (userObj) => {
 
     const documentRef = doc(firestore, 'Users', uuid); // Specify a unique document ID
     await setDoc(documentRef, { ...userData });
-    logger.info(`Uploaded Data with ID: ${uuid}`);
+    logger.debug(`Uploaded Data with ID: ${uuid}`);
   } catch (error) {
     logger.error(`Failed to upload data: ${error}`);
   }
@@ -39,8 +49,10 @@ const getData = async () => {
   try {
     const firestore = getFirestoreDB();
     const querySnapshot = await getDocs(collection(firestore, 'Users'));
-    const data = querySnapshot.docs.map(doc => new User(doc.id, ...Object.values(doc.data())));
-    logger.info(`Retrieved Data: ${JSON.stringify(data)}`);
+    const data = querySnapshot.docs.map(
+      (doc) => new User(doc.id, ...Object.values(doc.data()))
+    );
+    logger.debug(`infoRetrieved Data: ${JSON.stringify(data)}`);
     return data;
   } catch (error) {
     logger.error(`Failed to retrieve data: ${error}`);
@@ -60,7 +72,7 @@ const getDataByID = async (id) => {
     if (documentSnapshot.exists()) {
       const data = documentSnapshot.data();
       const user = new User(id, ...Object.values(data));
-      logger.info(`Retrieved Data for ID ${id}: ${JSON.stringify(user)}`);
+      logger.debug(`Retrieved Data for ID ${id}: ${JSON.stringify(user)}`);
       return user;
     } else {
       logger.warn(`No document found with ID ${id}`);
@@ -69,7 +81,6 @@ const getDataByID = async (id) => {
     logger.error(`Failed to retrieve data by ID: ${error}`);
   }
 };
-
 
 /**
  * Retrieves a user by a specified field (e.g., email) from the Firestore database.
@@ -92,7 +103,9 @@ const getUserByField = async (field, value) => {
     const docSnapshot = querySnapshot.docs[0];
     const data = docSnapshot.data();
     const user = new User(docSnapshot.id, ...Object.values(data));
-    logger.info(`Retrieved Data for ${field} = ${value}: ${JSON.stringify(user)}`);
+    logger.debug(
+      `Retrieved Data for ${field} = ${value}: ${JSON.stringify(user)}`
+    );
     return user;
   } catch (error) {
     logger.error(`Failed to retrieve data by ${field}: ${error}`);
@@ -110,7 +123,7 @@ const updateData = async (id, newData) => {
     const firestore = getFirestoreDB();
     const documentRef = doc(firestore, 'Users', id);
     await updateDoc(documentRef, newData);
-    logger.info(`Updated Data for ID ${id}`);
+    logger.debug(`Updated Data for ID ${id}`);
   } catch (error) {
     logger.error(`Failed to update data: ${error}`);
   }
@@ -125,10 +138,17 @@ const deleteData = async (id) => {
     const firestore = getFirestoreDB();
     const documentRef = doc(firestore, 'Users', id);
     await deleteDoc(documentRef);
-    logger.info(`Deleted Data for ID ${id}`);
+    logger.debug(`Deleted Data for ID ${id}`);
   } catch (error) {
     logger.error(`Failed to delete data: ${error}`);
   }
 };
 
-module.exports = { uploadData, getData, getDataByID, getUserByField, updateData, deleteData };
+module.exports = {
+  uploadData,
+  getData,
+  getDataByID,
+  getUserByField,
+  updateData,
+  deleteData,
+};

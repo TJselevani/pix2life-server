@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
 const ip = require('ip');
+// const memwatch = require('memwatch-next');
 
 const result = dotenv.config();
 if (result.error) {
@@ -43,6 +44,11 @@ syncDatabase();
 const { initCloudinary } = require('./database/cloudinary/init');
 const { formatMemoryUsage } = require('./util/memory-tracking');
 initCloudinary();
+
+// memory leaks logger
+// memwatch.on('leak', (info) => {
+//   logger.error(`Memory leak detected:', ${JSON.stringify(info, null, 2)}`);
+// });
 
 // Close the Mongoose connection when receiving SIGINT
 // eslint-disable-next-line no-undef

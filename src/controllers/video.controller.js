@@ -38,7 +38,7 @@ const uploadVideo = asyncHandler(async (req, res) => {
 
   if (newVideo) {
     // await saveImageMetaDataDB(file);
-    logger.info(`Successfully created file: ${file.originalname}`);
+    logger.debug(`Successfully created file: ${file.originalname}`);
     res
       .status(201)
       .json({ message: `Successfully uploaded file: ${file.originalname}` });

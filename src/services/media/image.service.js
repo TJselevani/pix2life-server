@@ -93,10 +93,10 @@ class ImageService {
       const downloadURL = await getDownloadURL(snapshot.ref);
       const path = snapshot.metadata.fullPath;
 
-      logger.info(`filename: ${fileName}`);
-      logger.info(`path: ${snapshot.metadata.fullPath}`);
-      logger.info(`Successfully uploaded image: ${fileName}`);
-      logger.info(`url: ${downloadURL}`);
+      logger.debug(`filename: ${fileName}`);
+      logger.debug(`path: ${snapshot.metadata.fullPath}`);
+      logger.debug(`Successfully uploaded image: ${fileName}`);
+      logger.debug(`url: ${downloadURL}`);
       return { downloadURL, path };
     } catch (error) {
       logger.error(`Unable to upload Image to Firebase: ${error.message}`);
@@ -133,7 +133,7 @@ class ImageService {
         url: downloadURL,
         features: features,
       });
-      logger.info(`Successfully saved image to Database: ${file.originalname}`);
+      logger.debug(`Successfully saved image to Database: ${file.originalname}`);
       return newImage;
     } catch (error) {
       logger.error(`Unable to Save Image to Database: ${error.message}`);
@@ -147,10 +147,10 @@ class ImageService {
     try {
       const images = await Image.findAll();
       if (!images || images.length === 0) {
-        logger.info(`images not found`);
+        logger.warn(`images not found`);
         return [];
       }
-      logger.info(`Successfully retrieved all ${images.length} images`);
+      logger.debug(`Successfully retrieved all ${images.length} images`);
       return images;
     } catch (e) {
       logger.error(`Error retrieving all images: ${e}`);
@@ -165,7 +165,7 @@ class ImageService {
         logger.warn(`images not found`);
         return [];
       }
-      logger.info(
+      logger.debug(
         `Successfully retrieved ${images.length} images for ${user.username} ${user.id} ${user.email}`
       );
       return images;
@@ -186,7 +186,7 @@ class ImageService {
         logger.warn(`images not found`);
         return [];
       }
-      logger.info(
+      logger.debug(
         `Successfully retrieved ${images.length} images for ${user.username} ${user.id} ${user.email}`
       );
       return images;
@@ -207,7 +207,7 @@ class ImageService {
         logger.warn(`images not found`);
         return [];
       }
-      logger.info(
+      logger.debug(
         `Successfully retrieved ${images.length} images for ${user.username} ${user.id} ${user.email}`
       );
       return images;
@@ -242,7 +242,7 @@ class ImageService {
 
       await image.save();
 
-      logger.info(`Successfully updated image ${imageId}`);
+      logger.debug(`Successfully updated image ${imageId}`);
       return image;
     } catch (e) {
       logger.error(`Error updating image: ${e}`);
@@ -268,7 +268,7 @@ class ImageService {
 
       await Image.destroy({ where: { id: imageId } });
 
-      logger.info(
+      logger.debug(
         `Successfully deleted image: ${image.filename} from storage and database`
       );
       return { message: `Image ${image.filename} deleted successfully` };

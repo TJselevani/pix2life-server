@@ -11,7 +11,7 @@ const createUser = asyncHandler(async (req, res) => {
   const userData = req.body;
   const user = await userService.createUser(userData);
   const token = await authService.createAuthJWTToken(user);
-  logger.info(`User Created Successfully`);
+  logger.info(`User ${user.email} Created Successfully`);
   await userService.welcomeEmail(user);
   return res.json({
     token: token,
@@ -36,7 +36,7 @@ const createPassword = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  logger.info(`${email} ${password}`);
+  logger.debug(`${email} ${password}`);
   const authUser = await authService.validateUSer(email, password);
   if (!authUser) {
     throw new BadRequestError('Invalid Credentials');
@@ -86,7 +86,7 @@ const getUserByEmail = asyncHandler(async (req, res) => {
 
 const getUserById = asyncHandler(async (req, res) => {
   const id = req.params.id;
-  logger.info(id);
+  logger.debug(id);
   const user = await userService.getUserById(id);
   if (user != null) {
     return res.status(200).json({ user: user });
@@ -96,7 +96,7 @@ const getUserById = asyncHandler(async (req, res) => {
 
 const getUserFromToken = asyncHandler(async (req, res) => {
   const id = req.user.id;
-  logger.info(id);
+  logger.debug(id);
   const user = await userService.getUserById(id);
   if (user != null) {
     return res.status(200).json({ user: user });
@@ -118,7 +118,7 @@ const verifyResetCode = asyncHandler(async (req, res) => {
 
 const resetPassword = asyncHandler(async (req, res) => {
   const { email, resetCode, password, confirmPassword } = req.body;
-  logger.info(`${email}, ${resetCode}, ${password}, ${confirmPassword}`);
+  logger.debug(`${email}, ${resetCode}, ${password}, ${confirmPassword}`);
   if (password !== confirmPassword) {
     throw new BadRequestError("Passwords Don't match");
   }

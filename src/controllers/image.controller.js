@@ -42,7 +42,7 @@ const uploadImage = asyncHandler(async (req, res) => {
 
   if (newImage) {
     // await saveImageMetaDataDB(file);
-    logger.info(`Successfully created file: ${file.originalname}`);
+    logger.debug(`Successfully created file: ${file.originalname}`);
     res
       .status(201)
       .json({ message: `Successfully uploaded file: ${file.originalname}` });
@@ -68,7 +68,7 @@ const uploadAvatar = asyncHandler(async (req, res) => {
   const newAvatar = await userService.updateUserAvatar(userId, downloadURL);
 
   if (newAvatar) {
-    logger.info(`Successfully created file: ${file.originalname}`);
+    logger.debug(`Successfully created file: ${file.originalname}`);
     res.status(201).json({ message: `Successfully uploaded Avatar` });
   } else {
     throw new InternalServerError('File could not be uploaded, try again');
@@ -102,7 +102,7 @@ const matchImage = asyncHandler(async (req, res) => {
     throw new BadRequestError('No matching image found');
   }
 
-  logger.info(`match retrieved: ${match}`);
+  logger.debug(`match retrieved: ${match}`);
   res.json({ message: `Matching image, ${match.filename}`, image: match });
 });
 

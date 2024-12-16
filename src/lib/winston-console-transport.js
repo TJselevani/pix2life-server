@@ -9,7 +9,7 @@ const levelStyleMap = {
   info: '\x1b[94m%s\x1b[0m',
   verbose: '\x1b[35m%s\x1b[0m',
   debug: '\x1b[32m%s\x1b[0m',
-  silly: '\x1b[36m%s\x1b[0m'
+  silly: '\x1b[36m%s\x1b[0m',
 };
 
 class ConsoleLogTransport extends Transport {
@@ -17,7 +17,9 @@ class ConsoleLogTransport extends Transport {
     const label = info.consoleLoggerOptions?.label || info.level.toUpperCase();
     const finalMessage = `[${new Date().toISOString()}] [${label}] ${info.message}`;
     console.log(levelStyleMap[info.level], finalMessage);
-    if (info.stack) { console.log('\t', info.stack);}
+    if (info.stack) {
+      console.log('\t', info.stack);
+    }
     callback();
   }
 }

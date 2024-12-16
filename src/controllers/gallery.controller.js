@@ -25,7 +25,7 @@ const createGallery = asyncHandler(async (req, res) => {
   const folder = `images/${userId}/gallery`;
   const { downloadURL } = await CloudinaryService.uploadFile(imagePath, folder);
 
-  logger.info(`Gallery Name: ${galleryName}`);
+  logger.debug(`Gallery Name: ${galleryName}`);
 
   const existingGallery = await galleryService.findOne(galleryName, userId);
 

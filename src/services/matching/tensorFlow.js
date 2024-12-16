@@ -13,7 +13,7 @@ class TensorFlow {
     if (!this.model) {
       try {
         this.model = await mobilenet.load();
-        logger.info('Model loaded');
+        logger.debug('Model loaded');
       } catch (error) {
         logger.error(`Error loading model: ${error.message}`);
         throw new InternalServerError('Failed to load model');
