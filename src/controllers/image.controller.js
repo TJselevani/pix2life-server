@@ -31,7 +31,9 @@ const uploadImage = asyncHandler(async (req, res) => {
     imagePath,
     folder
   );
+
   const model = await tensorflow.checkModel();
+
   let features;
   if (model) {
     features = await tensorflow.extractFeatures(downloadURL);
@@ -90,6 +92,12 @@ const matchImage = asyncHandler(async (req, res) => {
 
   if (!file) {
     throw new BadRequestError('File not found/supported');
+  }
+
+  const model = await tensorflow.checkModel();
+
+  if (!model) {
+    throw new NotFoundError('Service unavailable');
   }
 
   const features = await tensorflow.extractStoredImageFeatures(filePath);
