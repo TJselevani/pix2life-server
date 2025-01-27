@@ -16,7 +16,6 @@ const {
 } = require('../../errors/application-errors');
 const { getFirebaseStorage } = require('../../database/firebase/init');
 const { Image } = require('../../database/models/init');
-const tensorflow = require('../matching/tensorFlow');
 const logger = require('../../loggers/logger');
 const galleryService = require('./gallery.service');
 const {
@@ -111,7 +110,8 @@ class ImageService {
     file,
     downloadURL,
     publicId,
-    galleryName
+    galleryName,
+    features
   ) => {
     try {
       let gallery = await galleryService.findOne(galleryName, userId);
@@ -119,8 +119,6 @@ class ImageService {
       if (!gallery) {
         gallery = await galleryService.createGallery(galleryName, userId);
       }
-
-      const features = await tensorflow.extractFeatures(downloadURL);
 
       const newImage = await Image.create({
         filename: file.originalname,
@@ -133,7 +131,9 @@ class ImageService {
         url: downloadURL,
         features: features,
       });
-      logger.debug(`Successfully saved image to Database: ${file.originalname}`);
+      logger.debug(
+        `Successfully saved image to Database: ${file.originalname}`
+      );
       return newImage;
     } catch (error) {
       logger.error(`Unable to Save Image to Database: ${error.message}`);

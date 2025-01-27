@@ -31,13 +31,19 @@ const uploadImage = asyncHandler(async (req, res) => {
     imagePath,
     folder
   );
+  const model = await tensorflow.checkModel();
+  let features;
+  if (model) {
+    features = await tensorflow.extractFeatures(downloadURL);
+  }
 
   const newImage = await imageService.UploadImageToDB(
     userId,
     file,
     downloadURL,
     publicId,
-    galleryName
+    galleryName,
+    features
   );
 
   if (newImage) {
