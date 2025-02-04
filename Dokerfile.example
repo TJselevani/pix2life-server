@@ -1,0 +1,19 @@
+# Stage 1: Build the application with a higher Node.js version
+FROM node:20 AS app-build
+
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json ./
+
+# Install the rest of the dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose the port that the app runs on
+EXPOSE 3000
+
+# Run the application
+CMD ["npm", "start"]
